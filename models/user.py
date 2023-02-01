@@ -37,9 +37,16 @@ class UserModel(db.Model):
             "info":{
                 'id':self.id,
                 'nickname':self.nickname,
-                'email':self.email,
+
                 'profile_image':self.profile_image,
-                'member': "Members" if self.is_member else "Non-Members",
+                'member': "members" if self.is_member else "non-members",
+            },
+            "additional":{
+                'email': self.email,
+                'birth': self.birth,
+                'age': self.age,
+                'job': self.job,
+                'location': self.location
             }
         }
 
@@ -53,7 +60,7 @@ class UserModel(db.Model):
 
     @classmethod
     def find_by_nickname(cls, _nickname):
-        return cls.query.filter_by(nickname=_nickname).all()
+        return cls.query.filter_by(nickname=_nickname).first()
 
     @classmethod
     def find_by_email(cls, _email):
