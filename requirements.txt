@@ -8,12 +8,3 @@ Flask-SocketIO
 Flask-Cors
 Flask-Bcrypt
 Werkzeug
-
-torch
-pandas
-numpy
-seqeval
-tqdm
-eventlet
-sentence-transformers
-konlpy
