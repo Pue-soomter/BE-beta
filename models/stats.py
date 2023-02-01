@@ -1,8 +1,8 @@
 from db import db
 from . import and_
 
-class ChatModel(db.Model):
-    __tablename__ = 'chats'
+class StatModel(db.Model):
+    __tablename__ = 'stats'
 
     id = db.Column(db.Integer, primary_key=True)
     date = db.Column(db.DateTime()) #YYYYMMDD
