@@ -5,6 +5,7 @@ from flask_socketio import SocketIO
 from flask_bcrypt import Bcrypt
 from flask_cors import CORS
 from db import db
+from develop import make_mock
 #from develop import make_mock
 from datetime import timedelta
 
@@ -77,6 +78,7 @@ def health():
 
 @app.route('/mock')
 def mock():
+    make_mock()
     return "OK"
 
 if __name__ == "__main__":

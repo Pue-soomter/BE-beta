@@ -8,13 +8,7 @@ Flask-SocketIO
 Flask-Cors
 Flask-Bcrypt
 Werkzeug
-tensorflow
-tensorflow_datasets
-transformers
-gdown
-gensim
-h5py
-konlpy
+
 torch
 pandas
 numpy
