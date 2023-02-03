@@ -19,7 +19,7 @@ class UserModel(db.Model):
 
     chats = db.relationship('ChatModel', backref='users')
 
-    def __init__(self, _nickname,_is_member,_birth,_location,_job,_age,_is_allow,_email=None,_prof_image=None):
+    def __init__(self, _nickname,_is_member=None,_birth=None,_location=None,_job=None,_age=None,_is_allow=None,_email=None,_prof_image=None):
         self.nickname = _nickname
         self.is_member = _is_member  # 회원구분,(0-비회원, 1-회원)
 
