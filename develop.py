@@ -4,15 +4,7 @@ from models import UserModel, ChatModel, BannerModel,datetime_format, day_format
 def make_mock():
 
     user = UserModel(
-        _nickname="chanee",
-        _email="well87865@gmail.com",
-        _is_allow= True,
-        _location= "경기",
-        _birth=datetime.strptime("1998-11-19",day_format),
-        _is_member=False,
-        _prof_image="",
-        _age=24,
-        _job="학생"
+        _nickname="chanee"
     )
     user.save_to_db()
 
@@ -20,7 +12,7 @@ def make_mock():
         _user_id=user.id,
         _date=datetime.strptime("2023-01-30 13:30:15",datetime_format),
         _chatter="bot",
-        _sentence="안녕 병찬아?"
+        _utterance="안녕 병찬아?"
     )
     chat.save_to_db()
 
@@ -28,7 +20,7 @@ def make_mock():
         _user_id=user.id,
         _date=datetime.strptime("2023-01-30 13:30:18", datetime_format),
         _chatter="bot",
-        _sentence="무슨일 있니?"
+        _utterance="무슨일 있니?"
     )
     chat.save_to_db()
 
@@ -36,7 +28,7 @@ def make_mock():
         _user_id=user.id,
         _date=datetime.strptime("2023-01-30 13:30:30", datetime_format),
         _chatter="user",
-        _sentence="일 없습네다."
+        _utterance="일 없습네다."
     )
     chat.save_to_db()
 

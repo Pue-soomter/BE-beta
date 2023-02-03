@@ -7,15 +7,15 @@ from flask_jwt_extended import (
 )
 from models import day_format, datetime_format
 from datetime import datetime
-from app import api
+#from app import api
 
 class NumberChatList(Resource):
+    # @api.doc(
+    #     security='JWT',
+    #     description="특정 시점으로부터 이전 10개의 채팅기록 받아오기",
+    #     params={"date": "특정 시점 제시 %Y-%m-%d %H:%M:%S"
+    #             })
     @jwt_required()
-    @api.doc(
-        security='JWT',
-        description="특정 시점으로부터 이전 10개의 채팅기록 받아오기",
-        params={"date": "특정 시점 제시 %Y-%m-%d %H:%M:%S"
-                })
     def get(self):
         params = request.args.to_dict()
         user_id = get_jwt_identity()

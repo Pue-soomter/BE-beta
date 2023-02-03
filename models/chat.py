@@ -7,19 +7,19 @@ class ChatModel(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     date = db.Column(db.DateTime()) #YYYYMMDD
     chatter = db.Column(db.String(80))  #발신/송신 구별
-    sentence = db.Column(db.String(80)) #대화내용
+    utterance = db.Column(db.Text()) #대화내용
 
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
 
-    def __init__(self, _user_id, _date,_chatter,_sentence):
+    def __init__(self, _user_id, _date,_chatter,_utterance):
         self.date = _date
         self.chatter = _chatter
-        self.sentence = _sentence
+        self.utterance = _utterance
 
         self.user_id = _user_id
 
     def json(self):
-        return {'date': self.date, 'chatter': self.chatter,'sentence':self.sentence}
+        return {'date': self.date, 'chatter': self.chatter,'utterance':self.utterance}
 
     @classmethod
     def find_by_number_with_user_id(cls, _user_id,_latest,number):

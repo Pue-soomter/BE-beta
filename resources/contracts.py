@@ -4,7 +4,7 @@ from flask import request
 from flask_jwt_extended import (
     get_jwt_identity,
 )
-from app import api
+#from app import api
 
 class InfoContract(Resource):
     def get(self):
