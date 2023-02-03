@@ -13,45 +13,15 @@ from flask_restx import fields, Resource, reqparse
 from app import api
 
 class UserRegister(Resource):
-
-    _user_parser = reqparse.RequestParser()
-    _user_parser.add_argument('nick_name',
-                              type=str,
-                              required=True
-                              )
-    _user_parser.add_argument('is_member',
-                              type=bool,
-                              required=True
-                              )
-
-    _user_parser.add_argument('email',
-                              type=str,
-                              required=True
-                              )
-
-    _user_parser.add_argument('location',
-                              type=str,
-                              required=True
-                              )
-
-    _user_parser.add_argument('birth',
-                              type=str,
-                              required=True
-                              )
-
-    _user_parser.add_argument('job',
-                              type=str,
-                              required=True
-                              )
-
-    _user_parser.add_argument('age',
-                              type=str,
-                              required=True
-                              )
-    _user_parser.add_argument('is_allow',
-                              type=bool,
-                              required=True
-                              )
+    _parser = reqparse.RequestParser()
+    _parser.add_argument('nick_name', type=str, required=True)
+    _parser.add_argument('is_member', type=bool, required=True)
+    _parser.add_argument('email', type=str, required=True)
+    _parser.add_argument('location', type=str, required=True)
+    _parser.add_argument('birth', type=str, required=True)
+    _parser.add_argument('job', type=str, required=True)
+    _parser.add_argument('age', type=str, required=True)
+    _parser.add_argument('is_allow', type=bool, required=True)
 
     @api.doc(
         description="사용자 회원가입을 위한 API"
@@ -67,7 +37,7 @@ class UserRegister(Resource):
         'is_allow': fields.Boolean(example=True, required=True, description='개인정보이용 동의여부'),
             }))
     def post(self):
-        data = UserRegister._user_parser.parse_args()
+        data = UserRegister._parser.parse_args()
 
         if UserModel.find_by_email(data['email']):
             return {"message": "A user with that email already exists"}, 400
@@ -163,14 +133,11 @@ class UserRefresh(Resource):
                }, 201
 
 class DevelopUserLogin(Resource):
-    _user_parser = reqparse.RequestParser()
-    _user_parser.add_argument('nick_name',
-                              type=str,
-                              required=True,
-                              help="Field named 'nick_name' cannot be blank."
-                              )
+    _parser = reqparse.RequestParser()
+    _parser.add_argument('nick_name', type=str,required=True,help="Field named 'nick_name' cannot be blank")
+
     def post(self):
-        data = DevelopUserLogin._user_parser.parse_args()
+        data = DevelopUserLogin._parser.parse_args()
 
         user = UserModel.find_by_nickname(data['nick_name'])
 

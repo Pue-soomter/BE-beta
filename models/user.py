@@ -13,13 +13,14 @@ class UserModel(db.Model):
     location = db.Column(db.String(80)) #사는지역
     job = db.Column(db.String(80))
     age = db.Column(db.String(80))
+    gender = db.Column(db.String(80))
     is_allow = db.Column(db.Boolean())
 
     profile_image = db.Column(db.Text(),nullable=True)
 
     chats = db.relationship('ChatModel', backref='users')
 
-    def __init__(self, _nickname,_is_member,_birth,_location,_job,_age,_is_allow,_email=None,_prof_image=None):
+    def __init__(self, _nickname,_is_member,_birth,_location,_job,_age,_is_allow,_gender,_email=None,_prof_image=None):
         self.nickname = _nickname
         self.is_member = _is_member  # 회원구분,(0-비회원, 1-회원)
 
@@ -28,6 +29,7 @@ class UserModel(db.Model):
         self.location = _location
         self.job = _job
         self.age = _age
+        self.gender = _gender
         self.is_allow = _is_allow
 
         self.profile_image =_prof_image
@@ -36,8 +38,7 @@ class UserModel(db.Model):
         return {
             "info":{
                 'id':self.id,
-                'nickname':self.nickname,
-
+                'nick_name':self.nickname,
                 'profile_image':self.profile_image,
                 'member': "members" if self.is_member else "non-members",
             },
@@ -46,7 +47,8 @@ class UserModel(db.Model):
                 'birth': self.birth,
                 'age': self.age,
                 'job': self.job,
-                'location': self.location
+                'location': self.location,
+                'gender':self.gender
             }
         }
 

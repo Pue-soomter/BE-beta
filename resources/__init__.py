@@ -10,9 +10,13 @@ def create_api(api):
     dev_ns.add_resource(DevelopUserLogin, '/login')
     dev_ns.add_resource(DevelopAllChatList, '/allchats')
 
-    #belonged to chat
+    #belonged to chatlog
     chat_ns = api.namespace('v1/chats', description='채팅 기록(실시간 채팅 X)')
     chat_ns.add_resource(NumberChatList,'/')
+
+    # belonged to real_time
+    msg_ns = api.namespace('v1/message', description='실시간 채팅, 응답받기')
+    msg_ns.add_resource(NumberChatList, '/')
 
     #belonged to main_menu
     menu_ns = api.namespace('v1/menu', description='메인페이지 API')
@@ -30,7 +34,7 @@ def create_api(api):
     contract_ns.add_resource(LicenseContract, '/license')
 
 def create_socketio(sock):
-    from .chatnamespace import ChatNamespace
+    from .message import ChatNamespace
     sock.on_namespace(ChatNamespace('/realchat'))
 
 def create_api_models(api):

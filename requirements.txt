@@ -8,3 +8,4 @@ Flask-SocketIO
 Flask-Cors
 Flask-Bcrypt
 Werkzeug
+eventlet
