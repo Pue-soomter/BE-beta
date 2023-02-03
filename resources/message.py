@@ -26,7 +26,7 @@ def save_chat(user_id,sender,message):
     chat = ChatModel(
         _user_id=user_id,
         _date=now,
-        _chatter='USER',
+        _chatter=sender,
         _utterance=message
     )
     chat.save_to_db()
@@ -78,7 +78,7 @@ class HookMessage(Resource):
 
         message_template = MessageTemplate("ok")
         if not msg["table"] == "open":
-            save_chat(user_id,'USER',msg['utterance'])
+            save_chat(user_id,'user',msg['utterance'])
         else :
             cached[user_id]=dict()
             message_template.add_message("안녕, 오늘 기분은 어때?",user_id,save_chat)
