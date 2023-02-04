@@ -33,19 +33,19 @@ def make_mock():
     chat.save_to_db()
 
     banner = BannerModel(
-        _name="네이버",
+        _name="샘플1",
         _start_date=datetime.strptime("2023-01-30", day_format),
         _end_date=datetime.strptime("2023-03-01", day_format),
-        _img_url="www.naver.com",
+        _img_url="https://soomter.s3.ap-northeast-2.amazonaws.com/sample1.jpg",
         _link_to="www.google.com"
     )
     banner.save_to_db()
 
     banner = BannerModel(
-        _name="카카오",
+        _name="샘플2",
         _start_date=datetime.strptime("2023-01-30", day_format),
         _end_date=datetime.strptime("2023-03-01", day_format),
-        _img_url="www.kakao.com",
+        _img_url="https://soomter.s3.ap-northeast-2.amazonaws.com/sample2.jpg",
         _link_to="www.google.com"
     )
     banner.save_to_db()

@@ -7,10 +7,7 @@ from flask_jwt_extended import (
 from models import day_format, datetime_format, UserModel, ChatModel, MessageTemplate
 from datetime import datetime
 from pytz import timezone
-import pandas as pd
 from sqlalchemy import create_engine, Table, MetaData, select
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import scoped_session,sessionmaker
 #from app import api
 
 cached={}
