@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="DB_USER">admin</string>
+    <string name="DB_PASS">well8786</string>
+    <string name="DB_HOST">soomter-develop.c8zdy2kkjmt7.ap-northeast-2.rds.amazonaws.com</string>
+    <string name="DB_PORT">3306</string>
+    <string name="DB_DBNAME">soomter-develop</string>
+    <string name="secret_key">puechan</string>
+</resources>
