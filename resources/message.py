@@ -11,22 +11,23 @@ from sqlalchemy import create_engine, Table, MetaData, select
 from packages.AI.models import *
 #from app import api
 
+import xml.etree.ElementTree as elemTree
+
+tree = elemTree.parse('docs/keys.xml')
+secretkey = tree.find('string[@name="secret_key"]').text
 
 weight_path = os.environ['CHATBOT_ROOT'] + r'/resources/weights/Abuse/'
-print("Path",weight_path)
 model = AbuseModel(weight_path)
 
-# 1에 가까울 수록 욕일 확률이 높다.
-result1 = model.predict_a_sentnece('Tlqkf 이건 못하겠지')
-print("Test",result1)
+db_info = {
+    "user": tree.find('string[@name="DB_USER"]').text,
+    "password": tree.find('string[@name="DB_PASS"]').text,
+    "host": tree.find('string[@name="DB_HOST"]').text,
+    "port": tree.find('string[@name="DB_PORT"]').text,
+    "database": tree.find('string[@name="DB_SCNAME"]').text
+}
 
 cached={}
-
-engine = create_engine("sqlite:///scenarios",connect_args={'check_same_thread': False})
-metadata_obj = MetaData()
-
-some_table = Table("도입1", metadata_obj, autoload_with=engine)
-conn = engine.connect()
 
 def save_chat(user_id,sender,message):
     now = datetime.now(timezone('Asia/Seoul'))
@@ -39,6 +40,12 @@ def save_chat(user_id,sender,message):
     chat.save_to_db()
 
 class HookMessage(Resource):
+    #, connect_args={'check_same_thread': False}
+    engine = create_engine(f"mysql://{db_info['user']}:{db_info['password']}@{db_info['host']}:{db_info['port']}/{db_info['database']}")
+    metadata_obj = MetaData()
+
+    some_table = Table("도입1", metadata_obj, autoload_with=engine)
+    conn = engine.connect()
 
     _parser = reqparse.RequestParser()
     _parser.add_argument('data', type=dict, required=True)
@@ -46,9 +53,9 @@ class HookMessage(Resource):
 
     @classmethod
     def load_row(cls,_table,_cursor):
-        some_table = Table(_table, metadata_obj, autoload_with=engine)
+        some_table = Table(_table, cls.metadata_obj, autoload_with=cls.engine)
         s = select([some_table]).where(some_table.columns.구분 ==_cursor)
-        return conn.execute(s).first()
+        return cls.conn.execute(s).first()
 
     @jwt_required()
     def post(self):

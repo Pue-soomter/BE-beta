@@ -1,7 +1,7 @@
 /pue
+/scenarios
 docs/keys.xml
 packages/AI/resources/*
 __pycache__/
 !docs/.keep
-
 *.pyc
