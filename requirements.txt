@@ -4,9 +4,12 @@ Flask-JWT-extended
 Flask-RESTful
 Flask-restx
 Flask-SQLAlchemy
-Flask-SocketIO
 Flask-Cors
 Flask-Bcrypt
 Werkzeug
 eventlet
 sqlalchemy
+mysqlclient
+pymysql
+xml
+pandas

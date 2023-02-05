@@ -8,15 +8,26 @@ from models import day_format, datetime_format, UserModel, ChatModel, MessageTem
 from datetime import datetime
 from pytz import timezone
 from sqlalchemy import create_engine, Table, MetaData, select
+from packages.AI.models import *
 #from app import api
 
+import xml.etree.ElementTree as elemTree
+
+tree = elemTree.parse('docs/keys.xml')
+secretkey = tree.find('string[@name="secret_key"]').text
+
+weight_path = os.environ['CHATBOT_ROOT'] + r'/resources/weights/Abuse/'
+model = AbuseModel(weight_path)
+
+db_info = {
+    "user": tree.find('string[@name="DB_USER"]').text,
+    "password": tree.find('string[@name="DB_PASS"]').text,
+    "host": tree.find('string[@name="DB_HOST"]').text,
+    "port": tree.find('string[@name="DB_PORT"]').text,
+    "database": tree.find('string[@name="DB_SCNAME"]').text
+}
+
 cached={}
-
-engine = create_engine("sqlite:///scenarios",connect_args={'check_same_thread': False})
-metadata_obj = MetaData()
-
-some_table = Table("도입1", metadata_obj, autoload_with=engine)
-conn = engine.connect()
 
 def save_chat(user_id,sender,message):
     now = datetime.now(timezone('Asia/Seoul'))
@@ -29,41 +40,23 @@ def save_chat(user_id,sender,message):
     chat.save_to_db()
 
 class HookMessage(Resource):
+    #, connect_args={'check_same_thread': False}
+    engine = create_engine(f"mysql://{db_info['user']}:{db_info['password']}@{db_info['host']}:{db_info['port']}/{db_info['database']}")
+    metadata_obj = MetaData()
 
-    # s = select([some_table]).where(some_table.columns.name == 'Jane Doe')
-    # result = conn.execute(s).first()
-    # print(result)
+    some_table = Table("도입1", metadata_obj, autoload_with=engine)
+    conn = engine.connect()
 
     _parser = reqparse.RequestParser()
     _parser.add_argument('data', type=dict, required=True)
     _parser.add_argument('additional',type=list,required=True)
+
     @classmethod
     def load_row(cls,_table,_cursor):
-        some_table = Table(_table, metadata_obj, autoload_with=engine)
+        some_table = Table(_table, cls.metadata_obj, autoload_with=cls.engine)
         s = select([some_table]).where(some_table.columns.구분 ==_cursor)
-        return conn.execute(s).first()
+        return cls.conn.execute(s).first()
 
-    # #message
-    # ->{
-    #     'key'->
-    #     'cursor' ->
-    #     'table' ->
-    #     'utterance' ->
-    #     'postback':{
-    #           'cursor':
-    #           'table':
-    #           'sentence:
-    #       }
-    # }
-
-    #additional (list)
-    #type ->
-    #data ->
-
-    # @api.doc(
-    #     security='JWT',
-    #     description="챗봇의 다음 메세지를 받습니다.",
-    # )
     @jwt_required()
     def post(self):
         user_id = get_jwt_identity()
@@ -179,37 +172,3 @@ class HookMessage(Resource):
 
         message_template.add_button(payloads)
         return message_template.json()
-
-        # if input == "슬픔":
-        #     emit(sad_sc[0])
-        #
-        # #
-        # processed_data = main_ai.run("Chanee",data['message'])
-        #
-        # if processed_data["Emotion"]:
-        #    stat= StatisticModel(
-        #        user_id=user.id,
-        #        date_YMD=now[:8]
-        #    )
-        #    stat.save_to_db()
-        #
-        # if processed_data["Flag"]:
-        #     user.num_of_counselling += 1
-        #
-        # user.save_to_db()
-        # print(processed_data)
-        # if not processed_data["Type"] == 'General':
-        #     eventlet.sleep(1)
-        # for content in processed_data["System_Corpus"] :
-        #     now = datetime.now(timezone('Asia/Seoul')).strftime("%Y%m%d%H%M%S")
-        #     emit("RECEIVE_MESSAGE", {"response": content,"day":now[:8],'time':now[8:]})
-        #     chat = ChatModel(
-        #         user_id=user.id,
-        #         date_YMD=now[:8],
-        #         date_YMDHMS=now,
-        #         direction='BOT',
-        #         utterance=content
-        #     )
-        #     chat.save_to_db()
-        #     eventlet.sleep(3)
-
