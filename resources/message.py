@@ -8,7 +8,17 @@ from models import day_format, datetime_format, UserModel, ChatModel, MessageTem
 from datetime import datetime
 from pytz import timezone
 from sqlalchemy import create_engine, Table, MetaData, select
+from packages.AI.models import *
 #from app import api
+
+
+weight_path = os.environ['CHATBOT_ROOT'] + r'/resources/weights/Abuse/'
+print("Path",weight_path)
+model = AbuseModel(weight_path)
+
+# 1에 가까울 수록 욕일 확률이 높다.
+result1 = model.predict_a_sentnece('Tlqkf 이건 못하겠지')
+print("Test",result1)
 
 cached={}
 
@@ -30,40 +40,16 @@ def save_chat(user_id,sender,message):
 
 class HookMessage(Resource):
 
-    # s = select([some_table]).where(some_table.columns.name == 'Jane Doe')
-    # result = conn.execute(s).first()
-    # print(result)
-
     _parser = reqparse.RequestParser()
     _parser.add_argument('data', type=dict, required=True)
     _parser.add_argument('additional',type=list,required=True)
+
     @classmethod
     def load_row(cls,_table,_cursor):
         some_table = Table(_table, metadata_obj, autoload_with=engine)
         s = select([some_table]).where(some_table.columns.구분 ==_cursor)
         return conn.execute(s).first()
 
-    # #message
-    # ->{
-    #     'key'->
-    #     'cursor' ->
-    #     'table' ->
-    #     'utterance' ->
-    #     'postback':{
-    #           'cursor':
-    #           'table':
-    #           'sentence:
-    #       }
-    # }
-
-    #additional (list)
-    #type ->
-    #data ->
-
-    # @api.doc(
-    #     security='JWT',
-    #     description="챗봇의 다음 메세지를 받습니다.",
-    # )
     @jwt_required()
     def post(self):
         user_id = get_jwt_identity()
@@ -179,37 +165,3 @@ class HookMessage(Resource):
 
         message_template.add_button(payloads)
         return message_template.json()
-
-        # if input == "슬픔":
-        #     emit(sad_sc[0])
-        #
-        # #
-        # processed_data = main_ai.run("Chanee",data['message'])
-        #
-        # if processed_data["Emotion"]:
-        #    stat= StatisticModel(
-        #        user_id=user.id,
-        #        date_YMD=now[:8]
-        #    )
-        #    stat.save_to_db()
-        #
-        # if processed_data["Flag"]:
-        #     user.num_of_counselling += 1
-        #
-        # user.save_to_db()
-        # print(processed_data)
-        # if not processed_data["Type"] == 'General':
-        #     eventlet.sleep(1)
-        # for content in processed_data["System_Corpus"] :
-        #     now = datetime.now(timezone('Asia/Seoul')).strftime("%Y%m%d%H%M%S")
-        #     emit("RECEIVE_MESSAGE", {"response": content,"day":now[:8],'time':now[8:]})
-        #     chat = ChatModel(
-        #         user_id=user.id,
-        #         date_YMD=now[:8],
-        #         date_YMDHMS=now,
-        #         direction='BOT',
-        #         utterance=content
-        #     )
-        #     chat.save_to_db()
-        #     eventlet.sleep(3)
-

@@ -1,14 +1,6 @@
-/packages/pue_ai/resources/weights/Emo_weights/
-
-/packages/pue_ai/resources/weights/GD_weights/
-
-/packages/pue_ai/resources/weights/NER_weights/
-
-/packages/pue_ai/resources/config.json
-
 /pue
 /docs/keys.xml
-
+/packages/AI/resources/*
 */__pycache__/*
 
 *.pyc
