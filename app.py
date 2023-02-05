@@ -8,35 +8,20 @@ from db import db
 from develop import make_mock
 #from develop import make_mock
 from datetime import timedelta
-import xml.etree.ElementTree as elemTree
-
-tree = elemTree.parse('docs/keys.xml')
-secretkey = tree.find('string[@name="secret_key"]').text
 
 host = "0.0.0.0"
 port = 5000
 
 app = Flask(__name__)
-app.secret_key = secretkey
-db_info = {
-    "user": tree.find('string[@name="DB_USER"]').text,
-    "password": tree.find('string[@name="DB_PASS"]').text,
-    "host": tree.find('string[@name="DB_HOST"]').text,
-    "port": tree.find('string[@name="DB_PORT"]').text,
-    "database": tree.find('string[@name="DB_DBNAME"]').text
-}
-
+app.secret_key = "chan"
+db_url = "pue"
 
 app.config['JWT_SECRET_KEY']="chanee"
-app.config['SQLALCHEMY_DATABASE_URI'] = f"mysql://{db_info['user']}:{db_info['password']}@{db_info['host']}:{db_info['port']}/{db_info['database']}"
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///'+db_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SQLALCHEMY_POOL_RECYCLE'] = 499
-app.config['SQLALCHEMY_POOL_TIMEOUT'] = 20
-
 app.config['PROPAGATE_EXCEPTIONS'] = True
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
 app.config["JWT_REFRESH_TOKEN_EXPIRES"] = timedelta(days=180)
-
 
 api = Api(app) #API FLASK SERVER
 
