@@ -1,6 +1,6 @@
 /pue
-/docs/keys.xml
-/packages/AI/resources/*
-*/__pycache__/*
+docs/keys.xml
+packages/AI/resources/*
+__pycache__/
 
 *.pyc
