@@ -1,4 +1,5 @@
 setuptools
+libmysqlclient-dev
 Flask
 Flask-JWT-extended
 Flask-RESTful
@@ -13,3 +14,11 @@ mysqlclient
 pymysql
 xml
 pandas
+tqdm
+tensorflow
+numpy
+tqdm
+tensorflow
+transformers
+gdown
+My
