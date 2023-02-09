@@ -7,7 +7,8 @@ from flask_jwt_extended import (
 )
 from models import UserModel
 from models import day_format, datetime_format
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
+from pytz import timezone
 from flask import request
 from flask_restx import fields, Resource, reqparse
 from app import api,expire_duration
