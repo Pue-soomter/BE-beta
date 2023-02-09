@@ -10,8 +10,6 @@ def create_api(api):
     dev_ns.add_resource(DevelopUserLogin, '/login')
     dev_ns.add_resource(DevelopAllChatList, '/allchats')
 
-
-
     #belonged to main_menu
     v1 = api.namespace('v1/', description='메인페이지 API')
     v1.add_resource(ListBanner, '/banners')
@@ -28,7 +26,7 @@ def create_api(api):
     v1.add_resource(HookMessage, '/message')
 
     #belonged to contract
-    v1.add_resource(InfoContract, '/personal')
+    v1.add_resource(InfoContract, '/contract')
     v1.add_resource(LicenseContract, '/license')
 
 def create_api_models(api):

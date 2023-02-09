@@ -4,26 +4,29 @@ from flask import request
 from flask_jwt_extended import (
     get_jwt_identity,
 )
-#from app import api
+from app import api
 
 class InfoContract(Resource):
+    @api.doc(
+        security='JWT',
+        description="유저 개인정보 동의서.")
     def get(self):
         params = request.args.to_dict()
         user_id = get_jwt_identity()
-        banners = [chat.json() for chat in ChatModel.find_by_number_with_user_id(user_id,params['date'],10)]
-
         return {
             'message': "ok",
-            'data': banners,
+            'data': [],
         }, 200
 
 class LicenseContract(Resource):
+    @api.doc(
+        security='JWT',
+        description="사용된 라이센스 목록.")
     def get(self):
         params = request.args.to_dict()
         user_id = get_jwt_identity()
-        banners = [chat.json() for chat in ChatModel.find_by_number_with_user_id(user_id,params['date'],10)]
 
         return {
             'message': "ok",
-            'data': banners,
+            'data': [],
         }, 200

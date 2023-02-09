@@ -15,6 +15,7 @@ secretkey = tree.find('string[@name="secret_key"]').text
 
 host = "0.0.0.0"
 port = 5000
+expire_duration = 1
 
 app = Flask(__name__)
 app.secret_key = secretkey
@@ -34,7 +35,7 @@ app.config['SQLALCHEMY_POOL_RECYCLE'] = 499
 app.config['SQLALCHEMY_POOL_TIMEOUT'] = 20
 
 app.config['PROPAGATE_EXCEPTIONS'] = True
-app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
+app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=expire_duration)
 app.config["JWT_REFRESH_TOKEN_EXPIRES"] = timedelta(days=180)
 
 

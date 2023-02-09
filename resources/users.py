@@ -7,10 +7,10 @@ from flask_jwt_extended import (
 )
 from models import UserModel
 from models import day_format, datetime_format
-from datetime import datetime
+from datetime import datetime, timedelta
 from flask import request
 from flask_restx import fields, Resource, reqparse
-from app import api
+from app import api,expire_duration
 
 class UserRegister(Resource):
     _parser = reqparse.RequestParser()
@@ -60,7 +60,8 @@ class UserRegister(Resource):
             "message": "User created successfully.",
             "data":[{
                 "access":access_token,
-                "refresh":refresh_token
+                "refresh":refresh_token,
+                "expiresAt": (datetime.now() + timedelta(hours=expire_duration)).strftime(datetime_format)
             }]
         }, 201
 
@@ -132,7 +133,8 @@ class UserRefresh(Resource):
         return {
                    "message": "New token created successfully.",
                    "data": [{
-                       "access": access_token
+                       "access": access_token,
+                       "expiresAt": (datetime.now() + timedelta(hours=expire_duration)).strftime(datetime_format)
                    }]
                }, 201
 
@@ -153,8 +155,8 @@ class DevelopUserLogin(Resource):
             return {
                 'access_token': access_token,
                 'refresh_token': refresh_token,
+                "expiresAt": (datetime.now() + timedelta(hours=expire_duration)).strftime(datetime_format),
                 'user_id':user.id
             }, 200
 
         return {"message": "Invalid Credentials!"}, 401
-
