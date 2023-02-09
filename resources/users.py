@@ -7,7 +7,7 @@ from flask_jwt_extended import (
 )
 from models import UserModel
 from models import day_format, datetime_format
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from flask import request
 from flask_restx import fields, Resource, reqparse
 from app import api,expire_duration
@@ -61,7 +61,7 @@ class UserRegister(Resource):
             "data":[{
                 "access":access_token,
                 "refresh":refresh_token,
-                "expiresAt": (datetime.now() + timedelta(hours=expire_duration)).strftime(datetime_format)
+                "expiresAt": (datetime.now(timezone('Asia/Seoul')) + timedelta(hours=expire_duration)).strftime(datetime_format)
             }]
         }, 201
 
@@ -134,7 +134,7 @@ class UserRefresh(Resource):
                    "message": "New token created successfully.",
                    "data": [{
                        "access": access_token,
-                       "expiresAt": (datetime.now() + timedelta(hours=expire_duration)).strftime(datetime_format)
+                       "expiresAt": (datetime.now(timezone('Asia/Seoul')) + timedelta(hours=expire_duration)).strftime(datetime_format)
                    }]
                }, 201
 
@@ -155,7 +155,7 @@ class DevelopUserLogin(Resource):
             return {
                 'access_token': access_token,
                 'refresh_token': refresh_token,
-                "expiresAt": (datetime.now() + timedelta(hours=expire_duration)).strftime(datetime_format),
+                "expiresAt": (datetime.now(timezone('Asia/Seoul')) + timedelta(hours=expire_duration)).strftime(datetime_format),
                 'user_id':user.id
             }, 200
 
