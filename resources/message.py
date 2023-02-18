@@ -105,7 +105,7 @@ def save_chat(user_id,sender,message):
 
 class HookMessage(Resource):
     #, connect_args={'check_same_thread': False}
-    engine = create_engine(f"mysql://{db_info['user']}:{db_info['password']}@{db_info['host']}:{db_info['port']}/{db_info['database']}")
+    engine = create_engine(f"mysql://{db_info['user']}:{db_info['password']}@{db_info['host']}:{db_info['port']}/{db_info['database']}?charset=utf8")
     metadata_obj = MetaData()
 
     some_table = Table("도입1", metadata_obj, autoload_with=engine)
