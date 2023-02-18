@@ -7,7 +7,7 @@ from flask_jwt_extended import (
 from models import day_format, datetime_format, UserModel, ChatModel, MessageTemplate
 from datetime import datetime
 from pytz import timezone
-from sqlalchemy import create_engine, Table, MetaData, select
+from sqlalchemy import create_engine, Table, MetaData, select, text
 #from packages.AI.models import *
 #from app import api
 
@@ -105,7 +105,7 @@ def save_chat(user_id,sender,message):
 
 class HookMessage(Resource):
     #, connect_args={'check_same_thread': False}
-    engine = create_engine(f"mysql://{db_info['user']}:{db_info['password']}@{db_info['host']}:{db_info['port']}/{db_info['database']}?charset=utf8")
+    engine = create_engine(f"mysql://{db_info['user']}:{db_info['password']}@{db_info['host']}:{db_info['port']}/{db_info['database']}")
     metadata_obj = MetaData()
 
     some_table = Table("도입1", metadata_obj, autoload_with=engine)
@@ -117,8 +117,11 @@ class HookMessage(Resource):
 
     @classmethod
     def load_row(cls,_table,_cursor):
+        _cursor = f"'{_cursor}'"
         some_table = Table(_table, cls.metadata_obj, autoload_with=cls.engine)
-        s = select([some_table]).where(some_table.columns.구분 ==_cursor)
+        #s = select([some_table]).where(some_table.columns.구분 ==_cursor)
+        #s = select([some_table]).where(text("'some_table.구분'= :gubun")== _cursor)
+        s = f"SELECT * FROM {some_table} WHERE 구분 = {_cursor}"
         return cls.conn.execute(s).first()
 
     @jwt_required()
