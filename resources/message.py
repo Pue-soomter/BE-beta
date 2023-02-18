@@ -121,7 +121,7 @@ class HookMessage(Resource):
         some_table = Table(_table, cls.metadata_obj, autoload_with=cls.engine)
         #s = select([some_table]).where(some_table.columns.구분 ==_cursor)
         #s = select([some_table]).where(text("'some_table.구분'= :gubun")== _cursor)
-        s = f"SELECT * FROM {some_table} WHERE 구분 = {_cursor}"
+        s = text(f"SELECT * FROM {some_table} WHERE 구분 = {_cursor}")
         return cls.conn.execute(s).first()
 
     @jwt_required()
