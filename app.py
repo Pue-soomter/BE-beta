@@ -12,8 +12,8 @@ import xml.etree.ElementTree as elemTree
 tree = elemTree.parse('docs/keys.xml')
 secretkey = tree.find('string[@name="secret_key"]').text
 
-host = "0.0.0.0"
-port = 5000
+# host = "0.0.0.0"
+# port = 5000
 expire_duration = 1
 
 app = Flask(__name__)
@@ -110,5 +110,5 @@ if __name__ == "__main__":
     db.init_app(app)
 
     print("Now we Run...")
-    app.run(host=host,port=port,debug=False) #debug tells us what is problem
+    app.run(debug=False) #debug tells us what is problem
     #sock.run(app,host=host,port=port,debug=False)
