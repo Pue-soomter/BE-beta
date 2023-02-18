@@ -19,11 +19,7 @@ expire_duration = 1
 
 app = Flask(__name__)
 
-db.init_app(app)
 
-@app.before_first_request
-def create_tables():
-    db.create_all()
 
 app.secret_key = secretkey
 db_info = {
@@ -45,6 +41,11 @@ app.config['PROPAGATE_EXCEPTIONS'] = True
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=expire_duration)
 app.config["JWT_REFRESH_TOKEN_EXPIRES"] = timedelta(days=180)
 
+db.init_app(app)
+
+@app.before_first_request
+def create_tables():
+    db.create_all()
 
 api = Api(app) #API FLASK SERVER
 
