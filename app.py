@@ -14,7 +14,11 @@ secretkey = tree.find('string[@name="secret_key"]').text
 
 # host = "0.0.0.0"
 # port = 5000
+
+
 expire_duration = 1
+
+
 
 app = Flask(__name__)
 
@@ -99,6 +103,17 @@ def health():
 def mock():
     make_mock()
     return "OK"
+
+def create_app():
+    from resources import create_api, create_api_models
+
+    create_api_models(api)
+    create_api(api)
+    # create_socketio(sock)
+
+    db.init_app(app)
+    return app
+
 
 if __name__ == "__main__":
     from resources import create_api,create_api_models
