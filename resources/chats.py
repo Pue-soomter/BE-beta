@@ -13,18 +13,15 @@ from app import api
 class NumberChatList(Resource):
     @api.doc(
         security='JWT',
-        description="특정 시점으로부터 이전 10개의 채팅기록 받아오기",
-        params={"date": "(nullable) 특정 시점 제시 %Y-%m-%d %H:%M:%S"
-                })
+        description="모든 채팅기록 받아오기",
+        # params={"date": "(nullable) 특정 시점 제시 %Y-%m-%d %H:%M:%S"
+        #         })
+    )
     @jwt_required()
     def get(self):
-        try:
-            params = request.args.to_dict()
-            target = params['date']
-        except:
-            target = datetime.now(timezone('Asia/Seoul')).strftime(datetime_format)
+
         user_id = get_jwt_identity()
-        chats = [chat.json() for chat in ChatModel.find_by_number_with_user_id(_user_id=user_id,_latest=datetime.strptime(target,datetime_format),number=10)]
+        chats = [chat.json() for chat in ChatModel.find_all_with_user_id(_user_id=user_id)]
 
         for chat in chats :
             chat['date'] = chat['date'].strftime(datetime_format)

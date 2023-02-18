@@ -27,7 +27,7 @@ class ChatModel(db.Model):
 
     @classmethod
     def find_all_with_user_id(cls,_user_id):
-        return cls.query.filter_by(user_id=_user_id).order_by(cls.id.desc()).all()
+        return cls.query.filter_by(user_id=_user_id).all()
 
     def save_to_db(self):
         db.session.add(self)
