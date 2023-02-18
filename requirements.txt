@@ -1,5 +1,4 @@
 setuptools
-libmysqlclient-dev
 Flask
 Flask-JWT-extended
 Flask-RESTful
