@@ -18,6 +18,13 @@ port = 5000
 expire_duration = 1
 
 app = Flask(__name__)
+
+db.init_app(app)
+
+@app.before_first_request
+def create_tables():
+    db.create_all()
+
 app.secret_key = secretkey
 db_info = {
     "user": tree.find('string[@name="DB_USER"]').text,
