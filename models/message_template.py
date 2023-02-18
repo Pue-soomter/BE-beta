@@ -9,12 +9,14 @@ class MessageTemplate():
         user = UserModel.find_by_id(_userid)
         _temp = {"type":"message"}
         _temp["utterance"]=_message.replace("00",user.nickname)
+        _temp["chatter"] = 'bot'
         _save_chat(_userid,"bot",_message)
         self.data.append(_temp)
 
     def add_traffic_lights(self,cursor_cache):
         _temp={
             "type": "traffic_lights",
+            "chatter":'user',
             "payload": [{
                 'utterance': "테스트입니다. 빨간불",
                 'postback':{
@@ -43,18 +45,29 @@ class MessageTemplate():
         cursor_cache["current"] = "유저시작"
 
     def add_postback(self,payloads):
+        counter = {"desc":0,"button":0}
         _temp = {
             "type": "postback",
+            "default" : payloads[0]["key"],
+            "chatter":"user",
             "payload": []
         }
         for content in payloads:
             _content_temp={}
-            _content_temp["type"]=content["type"]
+            counter[content["type"]]+=1
+            #_content_temp["type"]=content["type"]
             _content_temp["utterance"] = content["utterance"]
             _content_temp['postback']={}
             _content_temp['postback']["key"] = content["key"]
             _content_temp['postback']["utterance"] = content["utterance"]
             _temp["payload"].append(_content_temp)
+
+        if counter["desc"] * counter["button"] == 0:
+            _temp["type"] = "desc" if counter["desc"]>counter["button"] else "button"
+            _temp.pop("default")
+        else :
+            _temp["type"] = "mixture"
+            _temp["payload"] = _temp["payload"][1:]
 
         self.data.append(_temp)
 
