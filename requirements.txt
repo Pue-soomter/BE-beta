@@ -9,7 +9,7 @@ Flask-Cors
 Flask-Bcrypt
 Werkzeug
 eventlet
-sqlalchemy
+sqlalchemy==1.4.22
 mysqlclient
 pymysql
 xml
