@@ -95,6 +95,7 @@ def change_sentence(_row,_sentence_cursor,user_id):
 
 def save_chat(user_id,sender,message):
     now = datetime.now(timezone('Asia/Seoul'))
+    print(f"USER_ID:{user_id} message:{message}")
     chat = ChatModel(
         _user_id=user_id,
         _date=now,

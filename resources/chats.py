@@ -7,6 +7,7 @@ from flask_jwt_extended import (
 )
 from models import day_format, datetime_format
 from datetime import datetime
+from pytz import timezone
 from app import api
 
 class NumberChatList(Resource):
@@ -21,7 +22,8 @@ class NumberChatList(Resource):
             params = request.args.to_dict()
             target = params['date']
         except:
-            target = datetime.now().strftime(datetime_format)
+            target = datetime.now(timezone('Asia/Seoul')).strftime(datetime_format)
+        print(f"[DEBUG] target {target}")
         user_id = get_jwt_identity()
         chats = [chat.json() for chat in ChatModel.find_by_number_with_user_id(_user_id=user_id,_latest=datetime.strptime(target,datetime_format),number=10)]
 
