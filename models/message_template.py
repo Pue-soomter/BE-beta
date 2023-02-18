@@ -64,7 +64,10 @@ class MessageTemplate():
 
         if counter["desc"] * counter["button"] == 0:
             _temp["type"] = "desc" if counter["desc"]>counter["button"] else "button"
-            _temp.pop("default")
+            if _temp["type"] == "desc":
+                _temp["payload"].pop()
+            else:
+                _temp.pop("default")
         else :
             _temp["type"] = "mixture"
             _temp["payload"] = _temp["payload"][1:]
