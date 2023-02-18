@@ -1,73 +1,97 @@
+from .user import UserModel
 
 class MessageTemplate():
     def __init__(self,_message):
         self.message = _message
         self.data=[]
 
-    def add_message(self,_message,_userid,_func):
+    def add_message(self,_message,_userid,_save_chat):
+        user = UserModel.find_by_id(_userid)
         _temp = {"type":"message"}
-        _temp["message"]=_message
-        _func(_userid,"bot",_message)
+        _temp["utterance"]=_message.replace("00",user.nickname)
+        _save_chat(_userid,"bot",_message)
         self.data.append(_temp)
 
-    def add_traffic_lights(self):
+    def add_traffic_lights(self,cursor_cache):
         _temp={
             "type": "traffic_lights",
             "payload": [{
-                'key': '1',
-                'cursor': "유저시작",
-                'table': "시작",
-                'utterance': "기분이 좋지 않아",
+                'utterance': "테스트입니다. 빨간불",
                 'postback':{
-                    "cursor":"챗봇도입",
-                    "table":"도입1",
-                    "sentence":"문장1"
+                    'key':'1',
+                    'utterance': "테스트입니다. 빨간불",
                 }
             }, {
-                'key': '2',
-                'cursor': "유저시작",
-                'table': "시작",
-                'utterance': "그저 그래",
+                'utterance': "테스트입니다. 주황불",
                 'postback': {
-                    "cursor": "챗봇도입",
-                    "table": "도입1",
-                    "sentence": "문장1"
+                    'key':'2',
+                    'utterance': "테스트입니다. 주황불",
                 }
             }, {
-                'key': '3',
-                'cursor': "유저시작",
-                'table': "시작",
-                'utterance': "괜찮은 것 같아",
+                'utterance': "테스트입니다. 초록불",
                 'postback': {
-                    "cursor": "챗봇도입",
-                    "table": "도입1",
-                    "sentence": "문장2"
+                    'key':'3',
+                    'utterance': "테스트입니다. 초록불"
                 }
             }
-
             ]
         }
         self.data.append(_temp)
+        cursor_cache["1"] = "도입1-챗봇도입-문장1"
+        cursor_cache["2"] = "도입1-챗봇도입-문장1"
+        cursor_cache["3"] = "도입1-챗봇도입-문장1"
+        cursor_cache["current"] = "유저시작"
 
-    def add_button(self,payloads):
+    def add_postback(self,payloads):
         _temp = {
-            "type": "button",
+            "type": "postback",
             "payload": []
         }
         for content in payloads:
             _content_temp={}
-            _content_temp["key"] = content[0]
-            _content_temp["cursor"] = content[1]
-            _content_temp["table"] = content[2]
-            _content_temp["utterance"] = content[3]
+            _content_temp["type"]=content["type"]
+            _content_temp["utterance"] = content["utterance"]
             _content_temp['postback']={}
-            _content_temp['postback']["cursor"] = content[4]
-            _content_temp['postback']["table"] = content[5]
-            _content_temp['postback']["sentence"] = content[6]
+            _content_temp['postback']["key"] = content["key"]
+            _content_temp['postback']["utterance"] = content["utterance"]
             _temp["payload"].append(_content_temp)
 
         self.data.append(_temp)
 
+    def add_list(self,_list_name,_key):
+        _temp = {
+            "type": "list",
+            "payload": []
+        }
+        if _list_name == "실천":
+            _content_temp={
+                "title":"실천 목록 작성",
+                "utterance":"한번 실천목록을 작성해볼까?",
+                "postback":{
+                    "key":_key,
+                    "list":[]
+                }
+            }
+            _temp["payload"].append(_content_temp)
+        elif _list_name == "???":
+            """
+                TO DO
+            """
+        self.data.append(_temp)
+
+    def add_special(self,_name,_key):
+        _temp = {
+            "type": _name,
+            "payload": []
+        }
+        _content_temp = {
+            "postback": {
+                "key": _key,
+                "list": []
+            }
+        }
+        _temp["payload"].append(_content_temp)
+        self.data.append(_temp)
 
     def json(self):
         return {
