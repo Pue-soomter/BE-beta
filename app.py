@@ -8,22 +8,17 @@ from develop import make_mock
 #from develop import make_mock
 from datetime import timedelta
 import xml.etree.ElementTree as elemTree
-
-tree = elemTree.parse('docs/keys.xml')
-secretkey = tree.find('string[@name="secret_key"]').text
+from datetime import timedelta
 
 # host = "0.0.0.0"
 # port = 5000
 
-
 expire_duration = 1
 
-
+tree = elemTree.parse('docs/keys.xml')
+secretkey = tree.find('string[@name="secret_key"]').text
 
 app = Flask(__name__)
-
-
-
 app.secret_key = secretkey
 db_info = {
     "user": tree.find('string[@name="DB_USER"]').text,
@@ -33,9 +28,9 @@ db_info = {
     "database": tree.find('string[@name="DB_DBNAME"]').text
 }
 
-
-app.config['JWT_SECRET_KEY']="chanee"
-app.config['SQLALCHEMY_DATABASE_URI'] = f"mysql://{db_info['user']}:{db_info['password']}@{db_info['host']}:{db_info['port']}/{db_info['database']}"
+app.config['JWT_SECRET_KEY'] = "chanee"
+app.config[
+    'SQLALCHEMY_DATABASE_URI'] = f"mysql://{db_info['user']}:{db_info['password']}@{db_info['host']}:{db_info['port']}/{db_info['database']}"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_POOL_RECYCLE'] = 499
 app.config['SQLALCHEMY_POOL_TIMEOUT'] = 20
@@ -45,12 +40,14 @@ app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=expire_duration)
 app.config["JWT_REFRESH_TOKEN_EXPIRES"] = timedelta(days=180)
 
 db.init_app(app)
+api = Api(app)
+
 
 @app.before_first_request
 def create_tables():
     db.create_all()
 
-api = Api(app) #API FLASK SERVER
+ #API FLASK SERVER
 
 #CORS(app)
 CORS(app)
@@ -104,26 +101,13 @@ def mock():
     make_mock()
     return "OK"
 
-def create_app():
+if __name__ == "__main__":
     from resources import create_api, create_api_models
 
     create_api_models(api)
     create_api(api)
-    # create_socketio(sock)
-
-    db.init_app(app)
-    return app
-
-
-if __name__ == "__main__":
-    from resources import create_api,create_api_models
-
-    create_api_models(api)
-    create_api(api)
-    #create_socketio(sock)
-
-    db.init_app(app)
 
     print("Now we Run...")
+    #api.run()
     app.run(debug=False) #debug tells us what is problem
     #sock.run(app,host=host,port=port,debug=False)
