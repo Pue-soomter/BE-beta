@@ -10,8 +10,8 @@ from datetime import timedelta
 import xml.etree.ElementTree as elemTree
 from datetime import timedelta
 
-# host = "0.0.0.0"
-# port = 5000
+host = "0.0.0.0"
+port = 5000
 
 expire_duration = 1
 
@@ -109,5 +109,9 @@ if __name__ == "__main__":
 
     print("Now we Run...")
     #api.run()
-    app.run(debug=False) #debug tells us what is problem
+    app.run(
+        debug=False,
+        host=host,
+        port=port
+    ) #debug tells us what is problem
     #sock.run(app,host=host,port=port,debug=False)
