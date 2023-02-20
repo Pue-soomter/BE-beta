@@ -136,7 +136,7 @@ class UserMessage(Resource):
                        "message": "none"
                    }, 204
 
-        if "utterance" in msg.keys() and not (msg["utterance"] is None):
+        if (target is None) and not (msg["utterance"] is None):
 
             target = msg["utterance"]
 
