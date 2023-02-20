@@ -30,9 +30,10 @@ db_info = {
 
 #이전 대답 저장
 cached={}
-
 #현재 커서를 저장함
 cursor_cached={}
+#유저 대답 저장
+utterance_cached={}
 
 #문구변경 테이블, beta, 상담사 매칭 등 특수 테이블로의 이동
 def special_table():
@@ -103,6 +104,53 @@ def save_chat(user_id,sender,message):
     )
     chat.save_to_db()
 
+
+class UserMessage(Resource):
+    _parser = reqparse.RequestParser()
+    _parser.add_argument('postback', type=str, required=True)
+    _parser.add_argument('list', type=list, required=False)
+    _parser.add_argument('utterance', type=str, required=False)
+
+    @jwt_required()
+    def post(self):
+        user_id = get_jwt_identity()
+
+        raw_data = UserMessage._parser.parse_args()
+        msg = dict()
+        msg["key"] = raw_data['postback']
+
+        try:
+            msg["list"] = raw_data['list']
+        except:
+            pass
+
+        try:
+            msg["utterance"] = raw_data['utterance']
+        except:
+            pass
+
+        try:
+            target = utterance_cached[user_id][msg["key"]]
+        except KeyError:
+            return {
+                       "message": "none"
+                   }, 204
+
+        if "utterance" in msg.keys() and not (msg["utterance"] is None):
+
+            target = msg["utterance"]
+
+        save_chat(user_id, 'user', target)
+
+        return {
+            "message":"ok",
+            "data":{
+                "chatter":"user",
+                "utterance":target
+            }
+        }
+
+
 class HookMessage(Resource):
     #, connect_args={'check_same_thread': False}
     engine = create_engine(f"mysql://{db_info['user']}:{db_info['password']}@{db_info['host']}:{db_info['port']}/{db_info['database']}")
@@ -112,8 +160,9 @@ class HookMessage(Resource):
     conn = engine.connect()
 
     _parser = reqparse.RequestParser()
-    _parser.add_argument('postback', type=dict, required=True)
-    _parser.add_argument('additional',type=list,required=True)
+    _parser.add_argument('postback', type=str, required=True)
+    _parser.add_argument('list', type=list, required=False)
+    _parser.add_argument('utterance', type=str, required=False)
 
     @classmethod
     def load_row(cls,_table,_cursor):
@@ -129,8 +178,17 @@ class HookMessage(Resource):
         user_id = get_jwt_identity()
 
         raw_data = HookMessage._parser.parse_args()
-        msg = raw_data['postback']
-        additional=raw_data['additional']
+        msg = dict()
+        msg["key"] = raw_data['postback']
+        try:
+            msg["list"] = raw_data['list']
+        except :
+            pass
+
+        try:
+            msg["utterance"] = raw_data['utterance']
+        except:
+            pass
 
         """
             메세지 여부 판독하기
@@ -141,12 +199,14 @@ class HookMessage(Resource):
         is_already_set_message=False
         is_already_set_user_cursor=False
         message_template = MessageTemplate("ok")
+
         if msg["key"] == "open":
             cached[user_id] = dict()
             cursor_cached[user_id] = dict()
+            utterance_cached[user_id] = dict()
             message_template.add_message("안녕, 오늘 기분은 어때?", user_id, save_chat)
             message_template.add_message("너의 기분을 아래에서 표시해줘!", user_id, save_chat)
-            message_template.add_traffic_lights(cursor_cached[user_id])
+            message_template.add_traffic_lights(cursor_cached[user_id],utterance_cached[user_id])
             return message_template.json()
         elif msg["key"].startswith("리스트") :
             _,key = msg["key"].split('-')
@@ -162,9 +222,6 @@ class HookMessage(Resource):
         elif msg["key"].startswith("상담사매칭"):
             message_template.add_message(cached[user_id][msg["key"]], user_id, save_chat)
             is_already_set_message = True
-        else :
-            save_chat(user_id, 'user', msg['utterance'])
-
 
         """
            커서따오기 
@@ -293,7 +350,7 @@ class HookMessage(Resource):
                     "utterance":change_sentence(user_row,user_sentence,user_id),
                     "key":"1"
                 }
-                message_template.add_postback([_content_temp])
+                message_template.add_postback([_content_temp],utterance_cached[user_id])
 
 
             elif user_row[user_sentence+"개별함수"] == "서술형":
@@ -302,14 +359,14 @@ class HookMessage(Resource):
                     "utterance": "",
                     "key": "1"
                 }
-                message_template.add_postback([_content_temp])
+                message_template.add_postback([_content_temp],utterance_cached[user_id])
             else :
                 _content_temp = {
                     "type": "button",
                     "utterance": user_row[user_sentence],
                     "key": "1"
                 }
-                message_template.add_postback([_content_temp])
+                message_template.add_postback([_content_temp],utterance_cached[user_id])
             return message_template.json()
 
         """
@@ -337,7 +394,7 @@ class HookMessage(Resource):
         if user_row["문장함수적용"] == "번호별매칭":
             for content in payloads:
                 cursor_cached[user_id][content["key"]] = f'{user_table}-{user_row["함수파라미터"]}-문장{content["key"]}'
-            message_template.add_postback(payloads)
+            message_template.add_postback(payloads,utterance_cached[user_id])
         elif user_row["문장함수적용"] == "서술선택형":
             payloads[0]["type"]="desc"
             payloads[0]["utterance"]=""
@@ -348,11 +405,11 @@ class HookMessage(Resource):
                     warn(f"table_cursor:{user_table} gubun_cursor:{user_gubun} sentence_cursor:{user_sentence} \n"
                          f"유저의 문장이동이 존재하지 않아 잘못된 위치를 참조할 수 있습니다.")
                     cursor_cached[user_id][content["key"]] = f'챗봇{int(user_gubun) + 1}'
-            message_template.add_postback(payloads)
+            message_template.add_postback(payloads,utterance_cached[user_id])
         elif user_row["문장함수적용"] == "이동하기":
             for content in payloads:
                 cursor_cached[user_id][content["key"]] = f'{user_table}-{user_row["함수파라미터"]}'
-            message_template.add_postback(payloads)
+            message_template.add_postback(payloads,utterance_cached[user_id])
         else :
             for i,content in enumerate(payloads):
                 if not user_row[f"문장{i+1}이동"] is None:
@@ -361,7 +418,7 @@ class HookMessage(Resource):
                     warn(f"table_cursor:{user_table} gubun_cursor:{user_gubun} sentence_cursor:{user_sentence} \n"
                          f"유저의 문장이동이 존재하지 않아 잘못된 위치를 참조할 수 있습니다.")
                     cursor_cached[user_id][content["key"]] = f'챗봇{int(user_gubun)+1}'
-            message_template.add_postback(payloads)
+            message_template.add_postback(payloads,utterance_cached[user_id])
         return message_template.json()
 
 
