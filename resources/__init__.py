@@ -3,7 +3,7 @@ def create_api(api):
     from .chats import DevelopAllChatList, NumberChatList
     from .banners import ListBanner
     from .contracts import InfoContract, LicenseContract
-    from .message import HookMessage
+    from .message import HookMessage, UserMessage
 
     #belonged to test or developmen
     dev_ns = api.namespace('develop', description='개발 및 테스트용 api') # /goods/ 네임스페이스를 만든다
@@ -24,6 +24,7 @@ def create_api(api):
 
     # belonged to real_time
     v1.add_resource(HookMessage, '/message')
+    v1.add_resource(UserMessage, '/message/user')
 
     #belonged to contract
     v1.add_resource(InfoContract, '/contract')
