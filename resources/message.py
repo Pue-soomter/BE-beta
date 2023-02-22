@@ -137,10 +137,9 @@ class UserMessage(Resource):
                    }, 204
 
         if (target is None or target == "") and not (msg["utterance"] is None):
-
             target = msg["utterance"]
 
-        save_chat(user_id, 'user', target)
+
 
         return {
             "message":"ok",
@@ -222,6 +221,20 @@ class HookMessage(Resource):
         elif msg["key"].startswith("상담사매칭"):
             message_template.add_message(cached[user_id][msg["key"]], user_id, save_chat)
             is_already_set_message = True
+        else :
+            try:
+                target = utterance_cached[user_id][msg["key"]]
+
+                if (target is None or target == "") and not (msg["utterance"] is None):
+                    target = msg["utterance"]
+
+                save_chat(user_id, 'user', target)
+
+            except KeyError:
+                target = msg["utterance"]
+
+                save_chat(user_id, 'user', target)
+
 
         """
            커서따오기 
