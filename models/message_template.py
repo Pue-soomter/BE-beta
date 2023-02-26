@@ -12,6 +12,7 @@ class MessageTemplate():
         _temp["chatter"] = 'bot'
         _save_chat(_userid,"bot",_message)
         self.data.append(_temp)
+        """NONE"""
 
     def add_traffic_lights(self,cursor_cache,utterance_cache):
         _temp={
