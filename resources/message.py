@@ -277,6 +277,7 @@ class HookMessage(Resource):
             #message_template.add_message(cached[user_id][msg["key"]], user_id, save_chat)
             is_already_set_message = True
         elif msg["key"].startswith("상담사"):
+            save_chat(user_id, 'user', utterance_cached[user_id][msg["key"]])
             message_template.add_req_special("상담사매칭","open")
             is_already_set_message = True
             return message_template.json()
@@ -528,7 +529,7 @@ class HookMessage(Resource):
                 raw_sentence = change_sentence(user_row,f"문장{i+1}",user_id).strip()
                 payloads[-1]["utterance"] = raw_sentence
                 payloads[-1]["type"]="button"
-            elif user_row[f"문장{i+1}개별함수"] == "서술형":
+            elif user_row[f"문장{i+1}개별함수"] == "서술형" or user_row["문장함수적용"] == '서술형' :
                 payloads[-1]["utterance"] = ""
                 payloads[-1]["type"]="desc"
                 payloads=[payloads[-1]]+payloads[:-1]
