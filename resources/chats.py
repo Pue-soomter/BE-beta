@@ -30,7 +30,7 @@ class NumberChatList(Resource):
             if lasttime != current:
                 rets.append({
                     "type": "new_day",
-                    "utterance":current
+                    "utterance":chat['date'].strftime(datetime_format)
                 })
             lasttime = current
             chat['date'] = chat['date'].strftime(datetime_format)

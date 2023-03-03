@@ -218,6 +218,7 @@ class HookMessage(Resource):
             if (diff.seconds/3600) > 1 :
                 is_traffic_light = True
         else :
+            message_template.add_time(today.strftime(datetime_format))
             is_traffic_light = True
 
         cached[user_id]['lasttime'] = today
