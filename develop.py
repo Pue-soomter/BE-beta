@@ -1,51 +1,48 @@
 from datetime import datetime
-from models import UserModel, ChatModel, BannerModel,datetime_format, day_format
+from models import UserModel, ChatModel, BannerModel,datetime_format, day_format, \
+    CounselorModel, CounselorTimeModel, CounselorExpModel, CounselorTagModel, CounselorCertModel
 
 def make_mock():
+    flag = 0
 
-    user = UserModel(
-        _nickname="chanee"
-    )
-    user.save_to_db()
+    with open("mocks.txt", "r", encoding='utf-8') as f:
+        contents = f.readlines()
+        counselor = [[], [], [], [], []]
 
-    chat = ChatModel(
-        _user_id=user.id,
-        _date=datetime.strptime("2023-01-30 13:30:15",datetime_format),
-        _chatter="bot",
-        _utterance="안녕 병찬아?"
-    )
-    chat.save_to_db()
+        for line in contents:
+            real_line = line.strip()
+            if real_line == "Counselor":
+                counselor = [[], [], [], [], []]
+                flag = 0
+            elif real_line == "EXP":
+                flag = 1
+            elif real_line == "CERT":
+                flag = 2
+            elif real_line == "TIME":
+                flag = 3
+            elif real_line == "TAGS":
+                flag = 4
+            elif real_line != "":
+                counselor[flag].append(real_line)
+            else:
+                name = counselor[0][0]
+                sentence = counselor[0][1]
+                pf = counselor[0][2]
+                counselor_acc = CounselorModel(_name=name,_sentence=sentence,_profile=pf)
+                counselor_acc.save_to_db()
+                for con in counselor[1]:
+                    #print(con)
+                    counselor_con = CounselorExpModel(_content=con,_counselor_id=counselor_acc.id)
+                    counselor_con.save_to_db()
+                for con in counselor[2]:
+                    counselor_con = CounselorCertModel(_content=con, _counselor_id=counselor_acc.id)
+                    counselor_con.save_to_db()
+                for con in counselor[3]:
+                    counselor_con = CounselorTimeModel(_content=con,_counselor_id=counselor_acc.id)
+                    counselor_con.save_to_db()
+                for con in counselor[4]:
+                    counselor_con = CounselorTagModel(_content=con,_counselor_id=counselor_acc.id)
+                    counselor_con.save_to_db()
 
-    chat = ChatModel(
-        _user_id=user.id,
-        _date=datetime.strptime("2023-01-30 13:30:18", datetime_format),
-        _chatter="bot",
-        _utterance="무슨일 있니?"
-    )
-    chat.save_to_db()
 
-    chat = ChatModel(
-        _user_id=user.id,
-        _date=datetime.strptime("2023-01-30 13:30:30", datetime_format),
-        _chatter="user",
-        _utterance="일 없습네다."
-    )
-    chat.save_to_db()
 
-    banner = BannerModel(
-        _name="샘플1",
-        _start_date=datetime.strptime("2023-01-30", day_format),
-        _end_date=datetime.strptime("2023-03-01", day_format),
-        _img_url="https://soomter.s3.ap-northeast-2.amazonaws.com/sample1.jpg",
-        _link_to="www.google.com"
-    )
-    banner.save_to_db()
-
-    banner = BannerModel(
-        _name="샘플2",
-        _start_date=datetime.strptime("2023-01-30", day_format),
-        _end_date=datetime.strptime("2023-03-01", day_format),
-        _img_url="https://soomter.s3.ap-northeast-2.amazonaws.com/sample2.jpg",
-        _link_to="www.google.com"
-    )
-    banner.save_to_db()
