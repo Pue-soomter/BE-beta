@@ -136,12 +136,20 @@ class MessageTemplate():
                 "postback": _key,
             }
             _temp["payload"].append(_content_temp)
-        print(_temp["payload"][0]["title"])
+        elif _list_name == "selftalk":
+            _temp["type"] = "selftalk"
+            _content_temp = {
+                "title": "Self-talk 하기",
+                "utterance": "하나 약속하자면, 절대 우리 이야기를 이곳을 벗어나는 일은 없을거야. 그러니 너를 힘들게 하는 생각이나 감정을 이곳에 얘기해줄래",
+                "postback": _key,
+            }
+            _temp["payload"].append(_content_temp)
+
         _pre_button["utterance"] = _temp["payload"][0]["title"]
         self.data.append(_pre_button)
         self.data.append(_temp)
 
-    def add_special(self,_name,_key):
+    def add_beta(self,_name,_key):
         _temp = {
             "type": _name,
             "payload": []
@@ -150,6 +158,19 @@ class MessageTemplate():
             "postback": _key
         }
         _temp["payload"].append(_content_temp)
+        self.data.append(_temp)
+
+    def add_special(self,_name,_key):
+
+        _temp = {
+            "type": _name,
+            "payload": []
+        }
+        _content_temp = {
+            "postback": _key
+        }
+        _temp["payload"].append(_content_temp)
+
         self.data.append(_temp)
 
 

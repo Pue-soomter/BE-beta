@@ -47,7 +47,7 @@ def change_speical(_name,_message_template,_sentence,user_id):
     l_index = _sentence.find(f"%{_name}")
     r_index = _sentence.find(" ", l_index) + 1
     _message_template.add_message(_sentence[:l_index], user_id, save_chat)
-    _message_template.add_special(_name,f"{_name}1")
+    _message_template.add_list(_name,f"{_name}1")
     cached[user_id][f"{_name}1"] = _sentence[r_index:]
     return f"{_name}1"
 
