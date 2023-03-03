@@ -8,6 +8,8 @@ from models import day_format, datetime_format, UserModel, ChatModel, MessageTem
 from datetime import datetime
 from pytz import timezone
 from sqlalchemy import create_engine, Table, MetaData, select, text
+from datetime import datetime, timedelta
+from pytz import timezone
 #from packages.AI.models import *
 #from app import api
 
@@ -83,7 +85,6 @@ def change_sentence(_row,_sentence_cursor,user_id):
     for target in targets:
         #3.keys-sentence split
         raw_keys,sample_result = target.split(":")
-        sample_result = sample_result[1:-1]
         if raw_keys.startswith('!'):
             #4.key split
             keys = raw_keys[1:].split('&')
@@ -113,7 +114,6 @@ def save_chat(user_id,sender,message):
     )
     chat.save_to_db()
 
-
 class UserMessage(Resource):
     _parser = reqparse.RequestParser()
     _parser.add_argument('postback', type=str, required=True)
@@ -123,6 +123,7 @@ class UserMessage(Resource):
     @jwt_required()
     def post(self):
         user_id = get_jwt_identity()
+
 
         raw_data = UserMessage._parser.parse_args()
         msg = dict()
@@ -198,6 +199,29 @@ class HookMessage(Resource):
     @jwt_required()
     def post(self):
         user_id = get_jwt_identity()
+        message_template = MessageTemplate("ok")
+
+        if not user_id in cached.keys():
+            cached[user_id] = dict()
+        if not user_id in cursor_cached.keys():
+            cursor_cached[user_id] = dict()
+        if not user_id in utterance_cached.keys():
+            utterance_cached[user_id] = dict()
+
+        is_traffic_light = False
+
+        today = datetime.now(timezone('Asia/Seoul'))
+        if 'lasttime' in cached[user_id].keys():
+            diff = today - cached[user_id]['lasttime']
+            if today.strftime(day_format) != cached[user_id]['lasttime'].strftime(day_format) :
+                message_template.add_time(today.strftime(datetime_format))
+            if (diff.seconds/3600) > 1 :
+                is_traffic_light = True
+        else :
+            is_traffic_light = True
+
+        cached[user_id]['lasttime'] = today
+
 
         raw_data = HookMessage._parser.parse_args()
         msg = dict()
@@ -220,16 +244,16 @@ class HookMessage(Resource):
         """
         is_already_set_message=False
         is_already_set_user_cursor=False
-        message_template = MessageTemplate("ok")
+
 
         if msg["key"] == "open":
-            cached[user_id] = dict()
-            cursor_cached[user_id] = dict()
-            utterance_cached[user_id] = dict()
-            message_template.add_message("안녕, 오늘 기분은 어때?", user_id, save_chat)
-            message_template.add_message("너의 기분을 아래에서 표시해줘!", user_id, save_chat)
-            message_template.add_traffic_lights(cursor_cached[user_id],utterance_cached[user_id])
-            return message_template.json()
+            if is_traffic_light :
+                message_template.add_message("안녕, 오늘 기분은 어때?", user_id, save_chat)
+                message_template.add_message("너의 기분을 아래에서 표시해줘!", user_id, save_chat)
+                message_template.add_traffic_lights(cursor_cached[user_id],utterance_cached[user_id])
+                return message_template.json()
+            else :
+                cursor_cached[user_id][msg["key"]] = "도입1-챗봇도입-문장2"
         elif msg["key"].startswith("리스트") :
             _,key = msg["key"].split('-')
             next_sentence = cached[user_id][msg["key"]]

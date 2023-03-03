@@ -17,7 +17,7 @@ def process_josa(target,msg):
         if result == "이":
             output = target + '이' * Jongsung.has_jongsung(target)
         else:
-            if Jongsung.has_jongsung(target):
+            if Jongsung.has_jongsung(target) and not result.startswith("이"):
                 target += "이"
             output = Josa.get_full_string(target, result)
     except Exception as e:
@@ -31,7 +31,10 @@ def process_josa(target,msg):
         elif result == "":
             output = target
         else:
-            output = Josa.get_full_string(target, result[-1])
+            try:
+                output = Josa.get_full_string(target, result[-1])
+            except:
+                output = target + result
 
     return output
 
@@ -47,6 +50,13 @@ class MessageTemplate():
         _temp = {
             "type": "request",
             "postback":_key
+        }
+        self.data.append(_temp)
+
+    def add_time(self,time):
+        _temp = {
+            "type": "new_day",
+            "utterance":time
         }
         self.data.append(_temp)
 
@@ -83,20 +93,20 @@ class MessageTemplate():
                     output = process_josa(target,msg_list[i])
                     msg_list[i] = output
 
-            now = datetime.now(timezone('Asia/Seoul'))
+
             _temp = {"type": "message"}
             _temp["chatter"] = 'bot'
             _temp["utterance"] = ' '.join(msg_list)
-            _temp["date"] = now.strftime(datetime_format)
+
             _save_chat(_userid,"bot",message)
             self.data.append(_temp)
 
     def add_traffic_lights(self,cursor_cache,utterance_cache):
-        now = datetime.now(timezone('Asia/Seoul'))
+
         _temp={
             "type": "traffic_lights",
             "chatter":'user',
-            "date":now.strftime(datetime_format),
+
             "payload": [{
                 'utterance': "기분이 너무 안좋아",
                 'postback':'1',
@@ -149,15 +159,13 @@ class MessageTemplate():
         _temp["payload"].append(_content_temp)
         self.data.append(_temp)
 
-
     def add_postback(self,payloads,utterance_cache):
-        now = datetime.now(timezone('Asia/Seoul'))
+
         counter = {"desc":0,"button":0}
         _temp = {
             "type": "postback",
             "default" : payloads[0]["key"],
             "chatter":"user",
-            "date":now.strftime(datetime_format),
             "payload": []
         }
         for content in payloads:
@@ -190,13 +198,12 @@ class MessageTemplate():
         _pre_button ={
             "type":"button_list",
             "utterance":"",
-            "date":now.strftime(datetime_format),
             "chatter": 'bot',
         }
         _temp = {
             "type": "list_select",
             "chatter": 'bot',
-            "date": now.strftime(datetime_format),
+            #"date": now.strftime(datetime_format),
             "payload": []
         }
         if _list_name == "실천":

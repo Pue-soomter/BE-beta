@@ -23,12 +23,22 @@ class NumberChatList(Resource):
         user_id = get_jwt_identity()
         chats = [chat.json() for chat in ChatModel.find_all_with_user_id(_user_id=user_id)]
 
+        rets=[]
+        lasttime = "1900-01-01"
         for chat in chats :
+            current = chat['date'].strftime(day_format)
+            if lasttime != current:
+                rets.append({
+                    "type": "new_day",
+                    "utterance":current
+                })
+            lasttime = current
             chat['date'] = chat['date'].strftime(datetime_format)
+            rets.append(chat)
 
         return {
             'message':"ok",
-            'data': chats
+            'data': rets
                }, 200
 
 class DevelopAllChatList(Resource):
