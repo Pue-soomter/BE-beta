@@ -1,18 +1,33 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+from pyjosa.josa import Josa, Jongsung
 import re
-input_str = """그랬구나..."그러나 이건 어떨까? 이것도 처리할 수 잇을까나! 하.하.하." 스스로를 부족하다고 느꼈다면 점점 00(이)를 작아지게 만들어 마음이 많이 힘들었을 것 같아..? 하지만 00아, 부족한 부분일지라도 스스로에 대해 깨달을 수 있다는 것은 엄청난 일이야..! 내가 생각하는 것보다 스스로의 부족을 알기 어려워 하는 사람들도 많거든? 거기다 00이는 그 마음에 대한 노력을 위해 여기까지 찾아와줬잖아! 그렇기 때문에 그 경험들로 00이의 모든 가치를 결정하지 않았으면 좋겠어."""
-pattern = r"(?<=[.?!])\s+|\s+(?=[.?!])|\s+(?=\.\.\.)|\s+(?=\.\.)|\s+(?=\.\?)"
 
-# Define the regular expression to match quoted substrings
-# Find all occurrences of the quoted substrings
-
-
-# Split the input string on the quoted substrings
+raw_target = "00이"
+target = "경모123"
+print(target[-2:])
+raw_target = raw_target.replace("00","")
+result = re.sub(r'\((.*?)\)', r'\1',raw_target).strip()
 
 
-# Combine the output list with the quoted substrings
+output=""
+try:
+    if result == "이":
+        output = target+'이'*Jongsung.has_jongsung(target)
+    else:
+        if Jongsung.has_jongsung(target):
+            target+="이"
+        output = Josa.get_full_string(target, result)
+except Exception as e:
+    if not Jongsung.is_hangle(target):
+        output = target + result[-1]
+    elif result.startswith("이는"):
+        if Jongsung.has_jongsung(target):
+            output = target+"이는"
+        else:
+            output = target+"는"
+    elif result == "":
+        output=target
+    else:
+        output = Josa.get_full_string(target, result[-1])
 
-
-# Output: ['안녕하세요.', '저는', "'병찬'", '이에요.', '오늘', '해볼', '요리는', '"카레"', '입니다.']
+print(output)
 

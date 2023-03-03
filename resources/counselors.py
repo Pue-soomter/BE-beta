@@ -16,6 +16,9 @@ class ListCounselor(Resource):
     def get(self):
 
         counselors = [counselor.json() for counselor in CounselorModel.find_all()]
+        for i in counselors:
+            print(i["id"],i["name"])
+
         random.shuffle(counselors)
 
         return {

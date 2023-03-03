@@ -48,7 +48,7 @@ def change_speical(_name,_message_template,_sentence,user_id):
     r_index = _sentence.find(" ", l_index) + 1
     _message_template.add_message(_sentence[:l_index], user_id, save_chat)
     if _name == 'selftalk':
-        _message_template.add_list(_name,f"{_name}1")
+        _message_template.add_list(_name,f"{_name}1",user_id)
     elif _name == 'beta':
         _message_template.add_req_special(_name,f"{_name}1")
     cached[user_id][f"{_name}1"] = _sentence[r_index:]
@@ -63,7 +63,7 @@ def change_list(_message_template,_sentence,user_id):
     _,name,key = _sentence[l_index:r_index-1].split('-')
 
     _message_template.add_message(_sentence[:l_index],user_id,save_chat)
-    _message_template.add_list(name,"리스트-"+name+key)
+    _message_template.add_list(name,"리스트-"+name+key,user_id)
     cached[user_id]["리스트-"+name+key]=_sentence[r_index:] #이후 문장 저장하기임
     print( "TEST",cached[user_id]["리스트-"+name+key])
     return "리스트-"+name+key
@@ -252,7 +252,7 @@ class HookMessage(Resource):
             #message_template.add_message(cached[user_id][msg["key"]], user_id, save_chat)
             is_already_set_message = True
         elif msg["key"].startswith("상담사"):
-            message_template.add_req_special("상담사매칭","")
+            message_template.add_req_special("상담사매칭","open")
             is_already_set_message = True
             return message_template.json()
         else :
@@ -530,6 +530,7 @@ class HookMessage(Resource):
                 cursor_cached[user_id][content["key"]] = f'{raw_cursor}-문장{content["key"]}'
             message_template.add_postback(payloads,utterance_cached[user_id])
         elif user_row["문장함수적용"] == "서술선택형":
+            payloads.append(dict())
             payloads[0]["type"]="desc"
             payloads[0]["utterance"]=""
             for i,content in enumerate(payloads):
