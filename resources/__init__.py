@@ -4,6 +4,7 @@ def create_api(api):
     from .banners import ListBanner
     from .contracts import InfoContract, LicenseContract
     from .message import HookMessage, UserMessage
+    from .counselors import ListCounselor
 
     #belonged to test or developmen
     dev_ns = api.namespace('develop', description='개발 및 테스트용 api') # /goods/ 네임스페이스를 만든다
@@ -29,6 +30,9 @@ def create_api(api):
     #belonged to contract
     v1.add_resource(InfoContract, '/contract')
     v1.add_resource(LicenseContract, '/license')
+
+    #belonged to counselor
+    v1.add_resource(ListCounselor, '/counselors')
 
 def create_api_models(api):
     from .test import make_models
