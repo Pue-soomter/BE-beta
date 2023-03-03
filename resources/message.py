@@ -163,7 +163,7 @@ class HookMessage(Resource):
     engine = create_engine(f"mysql://{db_info['user']}:{db_info['password']}@{db_info['host']}:{db_info['port']}/{db_info['database']}")
     metadata_obj = MetaData()
 
-    some_table = Table("테스트도입1", metadata_obj, autoload_with=engine)
+    some_table = Table("도입1", metadata_obj, autoload_with=engine)
     conn = engine.connect()
 
     _parser = reqparse.RequestParser()
