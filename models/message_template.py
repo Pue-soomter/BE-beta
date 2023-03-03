@@ -31,9 +31,9 @@ class MessageTemplate():
             ]
         }
         self.data.append(_temp)
-        cursor_cache["1"] = "도입1-챗봇도입-문장1"
-        cursor_cache["2"] = "도입1-챗봇도입-문장1"
-        cursor_cache["3"] = "도입1-챗봇도입-문장1"
+        cursor_cache["1"] = "테스트도입1-챗봇도입-문장1"
+        cursor_cache["2"] = "테스트도입1-챗봇도입-문장1"
+        cursor_cache["3"] = "테스트도입1-챗봇도입-문장1"
         utterance_cache["1"] = "테스트입니다. 빨간불"
         utterance_cache["2"] = "테스트입니다. 주황불"
         utterance_cache["3"] = "테스트입니다. 초록불"
