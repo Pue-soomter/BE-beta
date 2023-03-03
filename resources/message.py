@@ -35,12 +35,14 @@ cursor_cached={}
 #유저 대답 저장
 utterance_cached={}
 
-#문구변경 테이블, beta, 상담사 매칭 등 특수 테이블로의 이동
+#문구변경 테이블, 상담사 매칭 등 특수 테이블로의 이동
 def special_table():
     """
     TODO
 
     """
+
+#특수 문장들 바꾸기 ex) beta
 def change_speical(_name,_message_template,_sentence,user_id):
     l_index = _sentence.find(f"%{_name}")
     r_index = _sentence.find(" ", l_index) + 1
@@ -59,12 +61,12 @@ def change_list(_message_template,_sentence,user_id):
 
     _message_template.add_message(_sentence[:l_index],user_id,save_chat)
     _message_template.add_list(name,"리스트-"+name+key)
-    cached[user_id][name+key]=_sentence[r_index:]
+    cached[user_id][name+key]=_sentence[r_index:] #이후 문장 저장하기임
     return "리스트-"+name+key
     #_message_template.add_message(_sentence[r_index:],user_id,save_chat)
 
 #문구변경 함수
-#[2&3:""//!2:""]
+#[2&3://!2:] 로 변경함
 def change_sentence(_row,_sentence_cursor,user_id):
     ret_sentence = _row[_sentence_cursor]
     l_index = ret_sentence.find('[')
@@ -139,8 +141,6 @@ class UserMessage(Resource):
         if (target is None or target == "") and not (msg["utterance"] is None):
             target = msg["utterance"]
 
-
-
         return {
             "message":"ok",
             "data":{
@@ -209,9 +209,15 @@ class HookMessage(Resource):
             return message_template.json()
         elif msg["key"].startswith("리스트") :
             _,key = msg["key"].split('-')
-            message_template.add_message(cached[user_id][key], user_id, save_chat)
-            cached[user_id][key] = msg["list"]
-            is_already_set_message = True
+            #다음 문장을 바로 추가하는 과정
+            if "%list" in cached[user_id][key]:
+                list_key = change_list(message_template, cached[user_id][key], user_id)
+                cursor_cached[user_id][list_key] = cursor_cached[user_id][msg["key"]]
+                return message_template.json()
+            else:
+                message_template.add_message(cached[user_id][key], user_id, save_chat)
+                cached[user_id][key] = msg["list"]
+                is_already_set_message = True
         elif msg["key"].startswith("selftalk"):
             message_template.add_message(cached[user_id][msg["key"]], user_id, save_chat)
             is_already_set_message = True
@@ -271,11 +277,20 @@ class HookMessage(Resource):
         """
             챗봇부분 개별함수 적용
         """
+        """
+        1. 리스트가 있으면 다음문장을 utterance cached 다 넣은채로 일단 보냄
+        2. 보낸 후에 받은 key로 utterance cached에 있는것을 가져오기
+        3. 이 cached에 또 list가 있는지 확인함
+        3-1 있으면 1 반복, 기존에 어떻게 key가 되었는지?
+        3-2 없으면 원래 동작대로 ㄱ
+        
+        """
+
         if not is_already_set_message:
             if row[sentence_cursor+"개별함수"] == "문구변경":
                 message_template.add_message(
                     change_sentence(row,sentence_cursor,user_id), user_id, save_chat)
-            elif row[sentence_cursor+"개별함수"] == "리스트":
+            elif row[sentence_cursor+"개별함수"] == "리스트" or "%list" in row[sentence_cursor] :
                 list_key = change_list(message_template,row[sentence_cursor],user_id)
                 cursor_cached[user_id][list_key]='-'.join(tag_cursor)
                 return message_template.json()
