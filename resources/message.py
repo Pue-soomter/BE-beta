@@ -95,18 +95,22 @@ def change_sentence(_row,_sentence_cursor,user_id):
         raw_keys,sample_result = target.split(":")
         raw_keys = raw_keys.strip()
         sample_result = sample_result.strip()
-        if raw_keys.startswith('!'):
-            #4.key split
-            keys = raw_keys[1:].split('&')
-            #5.find key
-            if not cached[user_id][_row[_sentence_cursor + '함수파라미터']] in keys :
-                result = sample_result
-        else :
-            # 4.key split
-            keys = raw_keys.split('&')
-            # 5.find key
-            if cached[user_id][_row[_sentence_cursor + '함수파라미터']] in keys:
-                result = sample_result
+        if not (_row[_sentence_cursor + '함수파라미터'] in cached[user_id].keys()):
+            result = sample_result
+        else:
+            if raw_keys.startswith('!'):
+                #4.key split
+                keys = raw_keys[1:].split('&')
+                #5.find key
+
+                if not cached[user_id][_row[_sentence_cursor + '함수파라미터']] in keys :
+                    result = sample_result
+            else :
+                # 4.key split
+                keys = raw_keys.split('&')
+                # 5.find key
+                if cached[user_id][_row[_sentence_cursor + '함수파라미터']] in keys:
+                    result = sample_result
     try:
         return ret_sentence[:l_index] + result + ret_sentence[r_index + 1:]
     except Exception :
