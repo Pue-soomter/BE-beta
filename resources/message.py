@@ -262,6 +262,7 @@ class HookMessage(Resource):
                 return message_template.json()
             else :
                 cursor_cached[user_id][msg["key"]] = "도입1-챗봇도입-문장1"
+            cursor_cached[user_id]["current"]="유저시작"
         elif msg["key"].startswith("리스트") :
             _,key = msg["key"].split('-')
             next_sentence = cached[user_id][msg["key"]]
