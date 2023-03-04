@@ -89,9 +89,12 @@ def change_sentence(_row,_sentence_cursor,user_id):
     targets = raw_target_sentence.split("//")
     #2.loop
     result=""
+
     for target in targets:
         #3.keys-sentence split
         raw_keys,sample_result = target.split(":")
+        raw_keys = raw_keys.strip()
+        sample_result = sample_result.strip()
         if raw_keys.startswith('!'):
             #4.key split
             keys = raw_keys[1:].split('&')
@@ -253,7 +256,7 @@ class HookMessage(Resource):
         is_already_set_message=False
         is_already_set_user_cursor=False
 
-
+        next_sentence="dummy"
         if msg["key"] == "open":
             if is_traffic_light :
                 message_template.add_message("안녕, 오늘 기분은 어때?", user_id, save_chat)
@@ -261,7 +264,7 @@ class HookMessage(Resource):
                 message_template.add_traffic_lights(cursor_cached[user_id],utterance_cached[user_id])
                 return message_template.json()
             else :
-                cursor_cached[user_id][msg["key"]] = "도입1-챗봇도입-문장1"
+                cursor_cached[user_id][msg["key"]] = "도입1-챗봇도입-문장2"
             cursor_cached[user_id]["current"]="유저시작"
         elif msg["key"].startswith("리스트") :
             _,key = msg["key"].split('-')
@@ -328,6 +331,7 @@ class HookMessage(Resource):
         row = HookMessage.load_row(table_cursor, gubun_cursor)
 
         if not is_already_set_message:
+
             cached[user_id][cursor_cached[user_id]["current"]]=msg["key"]
         """
         !!current 추후 변경 필요!!
@@ -358,8 +362,9 @@ class HookMessage(Resource):
         """
 
         if not is_already_set_message:
+
             if row[sentence_cursor+"개별함수"] == "문구변경":
-                #print("Hello")
+
                 message_template.add_message(
                     change_sentence(row,sentence_cursor,user_id), user_id, save_chat)
             else :

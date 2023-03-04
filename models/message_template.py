@@ -62,7 +62,7 @@ class MessageTemplate():
 
     def add_message(self,_message,_userid,_save_chat):
         user = UserModel.find_by_id(_userid)
-
+        print("raw",_message)
         #_temp["utterance"]=_message.replace("00",user.nickname)
         quoted_substrings = MessageTemplate.quoted_substring_re.findall(_message)
         output_list = MessageTemplate.quoted_substring_re.split(_message)
@@ -84,7 +84,7 @@ class MessageTemplate():
         # Find all occurrences of the substrings
 
         target = user.nickname
-
+        print(messages)
         for message in messages :
             msg_list = message.split(" ")
 
