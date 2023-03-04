@@ -67,7 +67,7 @@ def change_list(_message_template,_sentence,user_id):
     _message_template.add_message(_sentence[:l_index],user_id,save_chat)
     _message_template.add_list(name,"리스트-"+name+key,user_id)
     cached[user_id]["리스트-"+name+key]=_sentence[r_index:] #이후 문장 저장하기임
-    print( "TEST",cached[user_id]["리스트-"+name+key])
+
     return "리스트-"+name+key
     #_message_template.add_message(_sentence[r_index:],user_id,save_chat)
 
@@ -77,6 +77,8 @@ def change_sentence(_row,_sentence_cursor,user_id):
     ret_sentence = _row[_sentence_cursor]
     l_index = ret_sentence.find('[')
     r_index = ret_sentence.rfind(']')
+    if r_index == -1:
+        r_index = len(ret_sentence)
     raw_target_sentence = ret_sentence[l_index + 1:r_index]
     #1.split
     targets = raw_target_sentence.split("//")
@@ -254,7 +256,7 @@ class HookMessage(Resource):
                 message_template.add_traffic_lights(cursor_cached[user_id],utterance_cached[user_id])
                 return message_template.json()
             else :
-                cursor_cached[user_id][msg["key"]] = "도입1-챗봇도입-문장2"
+                cursor_cached[user_id][msg["key"]] = "도입1-챗봇도입-문장1"
         elif msg["key"].startswith("리스트") :
             _,key = msg["key"].split('-')
             next_sentence = cached[user_id][msg["key"]]
@@ -363,7 +365,7 @@ class HookMessage(Resource):
                     cursor_cached[user_id][selftalk_name] = '-'.join(tag_cursor)
                     return message_template.json()
                 elif row[sentence_cursor][l_index:].startswith("%list"):
-                    print("Hello")
+
                     list_key = change_list(message_template, row[sentence_cursor], user_id)
                     cursor_cached[user_id][list_key] = '-'.join(tag_cursor)
                     return message_template.json()
@@ -391,7 +393,6 @@ class HookMessage(Resource):
         """
             유저 구분 커서 정하기
         """
-        print(gubun_cursor)
         if row[sentence_cursor + "이동"] is None:
             if not is_already_set_user_cursor:
                 warn("이동이 정해지지 않았습니다! 오류 발생가능!")
@@ -436,7 +437,7 @@ class HookMessage(Resource):
             message_template.add_req("1")
             cursor_cached[user_id]["1"]=raw_key
             return message_template.json()
-        print(user_table,user_gubun)
+        print("유저커서",user_table,user_gubun,user_sentence)
         user_row = HookMessage.load_row(user_table, user_gubun)
         if user_row == None:
             warn("이동이 없어 다음 인덱스의 문장을 가져왔습니다. 이는 심각한 오류를 초래할 수 있습니다.")
@@ -483,13 +484,27 @@ class HookMessage(Resource):
                 else :
                     raw_cursor = user_table + '-' + user_row['함수파라미터']
                 cursor_cached[user_id]["1"] = raw_cursor
-            else:
-                if user_row[user_sentence + "이동"].startswith("%"):
-                    raw_cursor = user_row[user_sentence + "이동"][1:-1].strip().split('-')
+            elif user_row["문장함수적용"] == "서술형":
+                if user_row['함수파라미터'].startswith("%"):
+                    raw_cursor = user_row['함수파라미터'][1:-1].strip().split('-')
                     raw_cursor[0] += '1'
                     raw_cursor = '-'.join(raw_cursor)
                 else :
-                    raw_cursor = user_table + '-' + user_row[user_sentence + "이동"]
+                    raw_cursor = user_table + '-' + user_row['함수파라미터']
+                cursor_cached[user_id]["1"] = raw_cursor
+            else:
+                #print("DEBUG",user_sentence,user_row)
+                if not user_row[user_sentence + "이동"] is None:
+                    if user_row[user_sentence + "이동"].startswith("%"):
+                        raw_cursor = user_row[user_sentence + "이동"][1:-1].strip().split('-')
+                        raw_cursor[0] += '1'
+                        raw_cursor = '-'.join(raw_cursor)
+                    else :
+                        raw_cursor = user_table + '-' + user_row[user_sentence + "이동"]
+                else :
+                    warn(f"{user_table}, {user_gubun}, {user_sentence}에 문장이동이 없습니다! 이는 심각한 오류를 초래할 수 있습니다.")
+                    next_row = HookMessage.load_next_row(user_table,user_row['index'])
+                    raw_cursor = user_table + '-' +next_row['구분']
                 cursor_cached[user_id]["1"] = raw_cursor
 
             if user_row[user_sentence+"개별함수"] == "문구변경":
@@ -499,7 +514,7 @@ class HookMessage(Resource):
                     "key":"1"
                 }
                 message_template.add_postback([_content_temp],utterance_cached[user_id])
-            elif user_row[user_sentence+"개별함수"] == "서술형":
+            elif user_row[user_sentence+"개별함수"] == "서술형" or user_row["문장함수적용"]=="서술형" :
                 _content_temp = {
                     "type": "desc",
                     "utterance": "",
@@ -527,18 +542,18 @@ class HookMessage(Resource):
             payloads[-1]["key"] = str(i + 1)
             if user_row[f"문장{i+1}개별함수"] == "문구변경":
                 raw_sentence = change_sentence(user_row,f"문장{i+1}",user_id).strip()
+                #print("문구변경 결과",raw_sentence, raw_sentence=='')
                 payloads[-1]["utterance"] = raw_sentence
                 payloads[-1]["type"]="button"
-            elif user_row[f"문장{i+1}개별함수"] == "서술형" or user_row["문장함수적용"] == '서술형' :
+            elif user_row[f"문장{i+1}개별함수"] == "서술형" :
                 payloads[-1]["utterance"] = ""
                 payloads[-1]["type"]="desc"
                 payloads=[payloads[-1]]+payloads[:-1]
-            elif user_row[f"문장{i+1}"] is None:
-                payloads.pop()
-                continue
-
+            elif user_row[f"문장{i+1}"] is None or user_row[f"문장{i+1}"] == "":
+                payloads[-1]["utterance"]=""
+                payloads[-1]["type"] = "blank"
             else:
-                payloads[i]["utterance"] = user_row[f"문장{i+1}"]
+                payloads[-1]["utterance"] = user_row[f"문장{i+1}"]
                 payloads[-1]["type"] = "button"
 
         """
@@ -552,14 +567,24 @@ class HookMessage(Resource):
                 raw_cursor = '-'.join(raw_cursor)
             else :
                 raw_cursor = f"{user_table}-{user_row['함수파라미터']}"
+
             for content in payloads:
                 cursor_cached[user_id][content["key"]] = f'{raw_cursor}-문장{content["key"]}'
-            message_template.add_postback(payloads,utterance_cached[user_id])
+            rets =[]
+            for content in payloads:
+                if not(content['type'] == "blank" or content['utterance'] == ""):
+                    rets.append(content)
+
+            message_template.add_postback(rets,utterance_cached[user_id])
         elif user_row["문장함수적용"] == "서술선택형":
-            payloads.append(dict())
-            payloads[0]["type"]="desc"
-            payloads[0]["utterance"]=""
+            # payloads.append(dict())
+            # payloads[0]["type"]="desc"
+            # payloads[0]["utterance"]=""
             for i,content in enumerate(payloads):
+                if content['type']=='blank':
+                    payloads[i]['type'] = 'desc'
+                    payloads[i]["utterance"] = ""
+
                 if not user_row[f"문장{i+1}이동"] is None:
                     if user_row[f"문장{i+1}이동"].startswith("%"):
                         raw_cursor = user_row[f"문장{i+1}이동"][1:-1].strip().split('-')
@@ -583,7 +608,13 @@ class HookMessage(Resource):
                 raw_cursor = f"{user_table}-{user_row['함수파라미터']}"
             for content in payloads:
                 cursor_cached[user_id][content["key"]] = f'{raw_cursor}'
-            message_template.add_postback(payloads,utterance_cached[user_id])
+
+            rets = []
+            for content in payloads:
+                if not (content['type'] == "blank" or content['utterance'] == ""):
+                    rets.append(content)
+
+            message_template.add_postback(rets,utterance_cached[user_id])
         elif user_row["문장함수적용"] == "서술형":
             if user_row["함수파라미터"].startswith("%"):
                 raw_cursor = user_row["함수파라미터"][1:-1].strip().split('-')
@@ -595,7 +626,7 @@ class HookMessage(Resource):
                 cursor_cached[user_id][content["key"]] = f'{raw_cursor}'
             message_template.add_postback(payloads,utterance_cached[user_id])
         else :
-            print(user_row)
+            #print(user_row)
             for i,content in enumerate(payloads):
                 if user_row[f"문장{i+1}이동"] is None and user_row[f"문장{i+1}"] is None and user_row[f"문장{i+1}개별함수"] != "서술형":
                     continue
@@ -622,7 +653,11 @@ class HookMessage(Resource):
                     cursor_cached[user_id][content["key"]] = f"{user_table}-{next_row['구분']}"
             #print("pay",payloads)
             #print(cursor_cached)
-            message_template.add_postback(payloads,utterance_cached[user_id])
+            rets = []
+            for content in payloads:
+                if not (content['type'] != "desc" and content['utterance'] == ""):
+                    rets.append(content)
+            message_template.add_postback(rets,utterance_cached[user_id])
         return message_template.json()
 
 
