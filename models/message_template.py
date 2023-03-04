@@ -210,11 +210,11 @@ class MessageTemplate():
             _content_temp={
                 "title":"실천목록 작성",
                 "placeholder":"나만의 실천목록을 채워보세요(ex_ 하루 10분 산책하기)",
-                "utterance":f"{process_josa(_target,'00이가')} 한번 실천목록을 작성해볼까?",
+                "utterance":f"{process_josa(_target,'00이가')} 스스로를 위해 할 수 있는 것들은 무엇이 있을까?",
                 "select_utterance":"이제 실천할 수 있는 일을 우선순위에 따라 선택해보자!",
                 "postback":_key,
             }
-
+            _pre_button["utterance"] = "실천 목록 작성하기"
             _temp["payload"].append(_content_temp)
         elif _list_name == "목표":
             _content_temp={
@@ -224,6 +224,7 @@ class MessageTemplate():
                 "select_utterance":"이제 할 수 있는 일들을 우선순위에 따라 선택해보자!",
                 "postback":_key,
             }
+            _pre_button["utterance"] = "삶의 목표 정하기"
             _temp["payload"].append(_content_temp)
         elif _list_name == "나의모습":
             _content_temp = {
@@ -233,6 +234,7 @@ class MessageTemplate():
                 "select_utterance": "가장 먼저 되고 싶은 모습이나, 쉽게 해볼 수 있는 건 어떤 걸까?",
                 "postback": _key,
             }
+            _pre_button["utterance"] = "내가 원하는 모습 찾기"
             _temp["payload"].append(_content_temp)
         elif _list_name == "이별사유":
             _temp["type"]="list"
@@ -242,6 +244,7 @@ class MessageTemplate():
                 "utterance": f"{process_josa(_target,'00이가')} 연인과 만나면서 힘들었던 이유에 대해 적어볼래?",
                 "postback": _key,
             }
+            _pre_button["utterance"] = "헤어짐의 이유 찾기"
             _temp["payload"].append(_content_temp)
         elif _list_name == "이별못함":
             _temp["type"]="list"
@@ -251,6 +254,7 @@ class MessageTemplate():
                 "utterance": f"{process_josa(_target,'00이가')} 연인과 헤어지지 못하는 이유에 대해 적어볼래?",
                 "postback": _key,
             }
+            _pre_button["utterance"] = "헤어지지 못하는 이유 찾기"
             _temp["payload"].append(_content_temp)
         elif _list_name == "좋아함":
             _temp["type"]="list"
@@ -260,6 +264,7 @@ class MessageTemplate():
                 "utterance": f"{process_josa(_target,'00이가')} 좋아하고, 원하는 것을 구체적으로 떠올리며 적어볼래?",
                 "postback": _key,
             }
+            _pre_button["utterance"] = "내가 좋아하는 것 찾기"
             _temp["payload"].append(_content_temp)
         elif _list_name == "자기탐색":
             _temp["type"] = "list"
@@ -269,6 +274,7 @@ class MessageTemplate():
                 "utterance": f"{process_josa(_target,'00이가')} 앞으로 하고 싶은 것을 떠올리며 적어볼래?",
                 "postback": _key,
             }
+            _pre_button["utterance"] = "내가 하고 싶었던 것 찾기"
             _temp["payload"].append(_content_temp)
         elif _list_name == "selftalk":
             _temp["type"] = "selftalk"
@@ -277,11 +283,9 @@ class MessageTemplate():
                 "utterance": "하나 약속하자면, 절대 우리 이야기를 이곳을 벗어나는 일은 없을거야. 그러니 너를 힘들게 하는 생각이나 감정을 이곳에 얘기해줄래",
                 "postback": _key,
             }
-            _temp["payload"].append(_content_temp)
-        if _list_name == 'selftalk':
             _pre_button["utterance"] = "Self-talk 시작하기"
-        else:
-        _pre_button["utterance"] = _temp["payload"][0]["title"]
+            _temp["payload"].append(_content_temp)
+
         self.data.append(_pre_button)
         self.data.append(_temp)
 
