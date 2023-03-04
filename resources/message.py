@@ -282,7 +282,7 @@ class HookMessage(Resource):
         elif msg["key"].startswith("beta"):
             next_sentence = cached[user_id][msg["key"]]
             #message_template.add_message(cached[user_id][msg["key"]], user_id, save_chat)
-            print("Next",next_sentence)
+            #print("Next",next_sentence)
             is_already_set_message = True
         elif msg["key"].startswith("상담사"):
             save_chat(user_id, 'user', utterance_cached[user_id][msg["key"]])
