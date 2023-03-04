@@ -46,6 +46,7 @@ def special_table():
 
 #특수 문장들 바꾸기 ex) beta
 def change_speical(_name,_message_template,_sentence,user_id):
+    ret = False
     l_index = _sentence.find(f"%{_name}")
     r_index = _sentence.find(" ", l_index) + 1
     _message_template.add_message(_sentence[:l_index], user_id, save_chat)
@@ -53,7 +54,11 @@ def change_speical(_name,_message_template,_sentence,user_id):
         _message_template.add_list(_name,f"{_name}1",user_id)
     elif _name == 'beta':
         _message_template.add_req_special(_name,f"{_name}1")
-    cached[user_id][f"{_name}1"] = _sentence[r_index:]
+    if r_index <= 0:
+        cached[user_id][f"{_name}1"] = ""
+    else :
+        cached[user_id][f"{_name}1"] = _sentence[r_index:].strip()
+
     return f"{_name}1"
 
 #리스트 함수
@@ -165,7 +170,7 @@ class HookMessage(Resource):
     engine = create_engine(f"mysql://{db_info['user']}:{db_info['password']}@{db_info['host']}:{db_info['port']}/{db_info['database']}")
     metadata_obj = MetaData()
 
-    some_table = Table("도입1", metadata_obj, autoload_with=engine)
+    some_table = Table("테스트도입1", metadata_obj, autoload_with=engine)
     conn = engine.connect()
 
     _parser = reqparse.RequestParser()
@@ -256,7 +261,7 @@ class HookMessage(Resource):
                 message_template.add_traffic_lights(cursor_cached[user_id],utterance_cached[user_id])
                 return message_template.json()
             else :
-                cursor_cached[user_id][msg["key"]] = "도입1-챗봇도입-문장1"
+                cursor_cached[user_id][msg["key"]] = "테스트도입1-챗봇도입-문장1"
         elif msg["key"].startswith("리스트") :
             _,key = msg["key"].split('-')
             next_sentence = cached[user_id][msg["key"]]
@@ -277,6 +282,7 @@ class HookMessage(Resource):
         elif msg["key"].startswith("beta"):
             next_sentence = cached[user_id][msg["key"]]
             #message_template.add_message(cached[user_id][msg["key"]], user_id, save_chat)
+            print("Next",next_sentence)
             is_already_set_message = True
         elif msg["key"].startswith("상담사"):
             save_chat(user_id, 'user', utterance_cached[user_id][msg["key"]])
@@ -352,6 +358,7 @@ class HookMessage(Resource):
 
         if not is_already_set_message:
             if row[sentence_cursor+"개별함수"] == "문구변경":
+                #print("Hello")
                 message_template.add_message(
                     change_sentence(row,sentence_cursor,user_id), user_id, save_chat)
             else :
@@ -372,22 +379,25 @@ class HookMessage(Resource):
                 else:
                     message_template.add_message(row[sentence_cursor], user_id, save_chat)
         else :
-            l_index = next_sentence.find("%")
 
-            if next_sentence[l_index:].startswith("%selftalk"):
-                selftalk_name = change_speical("selftalk", message_template, next_sentence, user_id)
-                cursor_cached[user_id][selftalk_name] = cursor_cached[user_id][msg["key"]]
-                return message_template.json()
-            elif next_sentence[l_index:].startswith("%beta"):
-                selftalk_name = change_speical("beta", message_template, next_sentence, user_id)
-                cursor_cached[user_id][selftalk_name] = cursor_cached[user_id][msg["key"]]
-                return message_template.json()
-            elif next_sentence[l_index:].startswith("%list"):
-                list_key = change_list(message_template,next_sentence, user_id)
-                cursor_cached[user_id][list_key] = cursor_cached[user_id][msg["key"]]
-                return message_template.json()
-            else:
-                message_template.add_message(next_sentence, user_id, save_chat)
+            if next_sentence != "":
+
+                l_index = next_sentence.find("%")
+
+                if next_sentence[l_index:].startswith("%selftalk"):
+                    selftalk_name = change_speical("selftalk", message_template, next_sentence, user_id)
+                    cursor_cached[user_id][selftalk_name] = cursor_cached[user_id][msg["key"]]
+                    return message_template.json()
+                elif next_sentence[l_index:].startswith("%beta"):
+                    selftalk_name = change_speical("beta", message_template, next_sentence, user_id)
+                    cursor_cached[user_id][selftalk_name] = cursor_cached[user_id][msg["key"]]
+                    return message_template.json()
+                elif next_sentence[l_index:].startswith("%list"):
+                    list_key = change_list(message_template,next_sentence, user_id)
+                    cursor_cached[user_id][list_key] = cursor_cached[user_id][msg["key"]]
+                    return message_template.json()
+                else:
+                    message_template.add_message(next_sentence, user_id, save_chat)
 
 
         """
@@ -622,7 +632,9 @@ class HookMessage(Resource):
                 raw_cursor = '-'.join(raw_cursor)
             else :
                 raw_cursor = f"{user_table}-{user_row['함수파라미터']}"
-            for content in payloads:
+
+            for i, content in enumerate(payloads):
+                payloads[i]['type']='desc'
                 cursor_cached[user_id][content["key"]] = f'{raw_cursor}'
             message_template.add_postback(payloads,utterance_cached[user_id])
         else :

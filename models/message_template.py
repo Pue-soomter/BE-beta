@@ -98,7 +98,7 @@ class MessageTemplate():
             _temp["chatter"] = 'bot'
             _temp["utterance"] = ' '.join(msg_list)
 
-            _save_chat(_userid,"bot",message)
+            _save_chat(_userid,"bot",_temp["utterance"])
             self.data.append(_temp)
 
     def add_traffic_lights(self,cursor_cache,utterance_cache):
@@ -121,9 +121,9 @@ class MessageTemplate():
             ]
         }
         self.data.append(_temp)
-        cursor_cache["1"] = "도입1-챗봇도입-문장1"
-        cursor_cache["2"] = "도입1-챗봇도입-문장1"
-        cursor_cache["3"] = "도입1-챗봇도입-문장1"
+        cursor_cache["1"] = "테스트도입1-챗봇도입-문장1"
+        cursor_cache["2"] = "테스트도입1-챗봇도입-문장1"
+        cursor_cache["3"] = "테스트도입1-챗봇도입-문장1"
         utterance_cache["1"] = "기분이 너무 안좋아"
         utterance_cache["2"] = "평소랑 다를 거 없어"
         utterance_cache["3"] = "오늘은 기분이 좋아"
@@ -137,7 +137,7 @@ class MessageTemplate():
             "utterance":"상담사와 얘기하기",
             "key":"상담사매칭"
         }
-        cursor_cache["상담사매칭"]="도입1"
+        cursor_cache["상담사매칭"]="테스트도입1"
         payloads.append(_temp)
         _temp = {
             "type": "button",
@@ -145,7 +145,7 @@ class MessageTemplate():
             "key": "2"
         }
         payloads.append(_temp)
-        cursor_cache["2"] = "도입1"
+        cursor_cache["2"] = "테스트도입1"
         self.add_postback(payloads,utterance_cache)
 
     def add_req_special(self,_name,_key):
