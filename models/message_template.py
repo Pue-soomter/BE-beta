@@ -62,7 +62,7 @@ class MessageTemplate():
 
     def add_message(self,_message,_userid,_save_chat):
         user = UserModel.find_by_id(_userid)
-        print("raw",_message)
+
         #_temp["utterance"]=_message.replace("00",user.nickname)
         quoted_substrings = MessageTemplate.quoted_substring_re.findall(_message)
         output_list = MessageTemplate.quoted_substring_re.split(_message)
@@ -84,7 +84,7 @@ class MessageTemplate():
         # Find all occurrences of the substrings
 
         target = user.nickname
-        print(messages)
+
         for message in messages :
             msg_list = message.split(" ")
 
@@ -278,7 +278,9 @@ class MessageTemplate():
                 "postback": _key,
             }
             _temp["payload"].append(_content_temp)
-
+        if _list_name == 'selftalk':
+            _pre_button["utterance"] = "Self-talk 시작하기"
+        else:
         _pre_button["utterance"] = _temp["payload"][0]["title"]
         self.data.append(_pre_button)
         self.data.append(_temp)
