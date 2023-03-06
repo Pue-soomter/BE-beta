@@ -12,7 +12,16 @@ def make_mock():
     #     _start_date=datetime.strptime("2023-03-04",day_format),
     #     _end_date=datetime.strptime("2023-03-30",day_format),
     # )
+    # banner = BannerModel.find_by_name("인스타")
+    # print(banner.name)
+    # banner.img_url=r"https://soomter.s3.ap-northeast-2.amazonaws.com/banner/%EB%B0%B0%EB%84%881+%EC%88%98%EC%A0%95.png"
     # banner.save_to_db()
+    #
+    # banner = BannerModel.find_by_name("카카오친구")
+    # print(banner.name)
+    # banner.img_url = r"https://soomter.s3.ap-northeast-2.amazonaws.com/banner/%EB%B0%B0%EB%84%882+%EC%88%98%EC%A0%95.png"
+    # banner.save_to_db()
+
     #
     # banner = BannerModel(
     #     _name="카카오친구",

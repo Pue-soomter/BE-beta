@@ -40,8 +40,8 @@ class UserRegister(Resource):
     def post(self):
         data = UserRegister._parser.parse_args()
 
-        if UserModel.find_by_nickname(data['nick_name']):
-            return {"message": "A user with that nick_name already exists"}, 400
+        # if UserModel.find_by_nickname(data['nick_name']):
+        #     return {"message": "A user with that nick_name already exists"}, 400
 
         user = UserModel(
             _nickname=data['nick_name']
