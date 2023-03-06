@@ -23,6 +23,10 @@ class BannerModel(db.Model):
         return {'img': self.img_url,'link':self.link_to}
 
     @classmethod
+    def find_by_name(cls, _name):
+        return cls.query.filter_by(name=_name).first()
+
+    @classmethod
     def find_from_end(cls, date):
         return cls.query.filter(and_(cls.start_date <= date, cls.end_date >= date)).order_by(cls.id.desc()).all()
 
