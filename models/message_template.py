@@ -8,11 +8,25 @@ day_format = "%Y-%m-%d"
 datetime_format = "%Y-%m-%d %H:%M:%S"
 
 def process_josa(target,msg):
+    """
+                목적:
+                    1. 00을 닉네임으로 변환하기 위한 함수
 
+                파라미터:
+                    target -> 닉네임
+                    msg -> 변환할 이름
+
+                결과:
+                    닉네임으로 바뀐 문장을 반환한다.
+
+            """
+    #닉네임을 두글자로만 자르고, 정규식표현을 이용하여 괄호를 없앤다. 00(이)야 -> 이야
     target = target[-2:]
     raw_target = msg.replace("00", "")
     result = re.sub(r'\((.*?)\)', r'\1', raw_target).strip()
 
+    #종성 여부를 판단하여 경우의수를 만들었는데, 절대 완벽하지 않습니다...
+    #Josa.get_full_string()는 target과 조사(result)를 변환하여 붙여주는데 못붙이는 경우 Exception을 발생시킵니다.
     try:
         if result.endswith("야") or result.endswith("아"):
             if Jongsung.has_jongsung(target):
@@ -60,6 +74,7 @@ class MessageTemplate():
         self.data.append(_temp)
 
     def add_time(self,time):
+        #FE분이 날짜가 바뀌면 time을 넣어달라해서 만들었습니다. 자세한 처리 과정은 FE분께...
         _temp = {
             "type": "new_day",
             "utterance":time
@@ -69,15 +84,34 @@ class MessageTemplate():
     def add_message(self,_message,_userid,_save_chat):
         user = UserModel.find_by_id(_userid)
 
-        #_temp["utterance"]=_message.replace("00",user.nickname)
+        #정규식을 이용, . .. ... ..! ? ..? 등을 만나면 문장을 나누는데, 이 기호들을 삭제하지 않습니다.
+        #""안의 내용은 나누지 않습니다.
+
+        #""안의 내용은 나누지 않기 위해서 ""만 따로 빼는 과정입니다. (quoted~~로 저장됩니다.)
         quoted_substrings = MessageTemplate.quoted_substring_re.findall(_message)
         output_list = MessageTemplate.quoted_substring_re.split(_message)
 
+        #공백제거
         output_list = [i.strip() for i in output_list if i != '']
         raw_output = []
+
+        # "" 외의 문장들에 대해서 . .. ... 등의 기호로 split을 실시합니다.
         for out in output_list:
             raw_output += re.split(MessageTemplate.pattern, out)
 
+        """
+            현상황은 이렇습니다.
+            
+            입력 : '그럼 "오늘 날씨가 좋아" 라고 말씀하셨나요? 그렇군요.'
+            quoted : ["오늘 날씨가 좋아"]
+            output_list : ["그럼","라고 말씀하셨나요? 그렇군요."]
+            raw_output :[["그럼"],["라고 말씀하셨나요?","그렇군요."]]
+            
+            보면 알겠지만, raw_output은 길이가 최대 2, 뒷문장이 없으면 1이다.
+            따라서 raw_output과 quoted를 번갈아 합치면 최종 메세지가 완성된다.
+            ["그럼"] + ["오늘 날씨가 좋아"] +["라고 말씀하셨나요?","그렇군요."]
+        
+        """
         output_list = raw_output
         output_list_with_quotes = []
         for i in range(len(output_list)):
@@ -91,6 +125,7 @@ class MessageTemplate():
 
         target = user.nickname
 
+        #메세지를 분할하는 과정
         for message in messages :
             msg_list = message.split(" ")
 
@@ -174,17 +209,29 @@ class MessageTemplate():
             "chatter":"user",
             "payload": []
         }
+        """
+        페이로드 내용 하나는 아래 양식을 가지고 있다.
+         {
+                "type": "button",
+                "utterance": "안녕하세요",
+                "key": "1"
+            }"""
         for content in payloads:
+            #이 함수 진입전에 예외처리를 하긴 했으나 혹시나 있을지 모르는 예외를 또 처리함
             if content["utterance"] is None and content["type"] == 'button':
                 continue
+
+            #메시지 전송 양식 만들기
             _content_temp={}
+
+            #desc 또는 button에 대해 +1
             counter[content["type"]]+=1
-            #_content_temp["type"]=content["type"]
             utterance_cache[content["key"]]=content["utterance"]
             _content_temp["utterance"] = content["utterance"]
             _content_temp['postback']=content["key"]
             _temp["payload"].append(_content_temp)
 
+        #desc인지, button인지, mixture인지 판단하기
         if counter["desc"] * counter["button"] == 0:
             _temp["type"] = "desc" if counter["desc"]>counter["button"] else "button"
             if _temp["type"] == "desc":
