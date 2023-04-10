@@ -19,6 +19,7 @@ secretkey = tree.find('string[@name="secret_key"]').text
 
 app = Flask(__name__)
 app.secret_key = secretkey
+app.secret_key = "puetest"
 db_info = {
     "user": tree.find('string[@name="DB_USER"]').text,
     "password": tree.find('string[@name="DB_PASS"]').text,
@@ -29,7 +30,8 @@ db_info = {
 
 app.config['JWT_SECRET_KEY'] = "chanee"
 app.config[
-    'SQLALCHEMY_DATABASE_URI'] = f"mysql://{db_info['user']}:{db_info['password']}@{db_info['host']}:{db_info['port']}/{db_info['database']}"
+     'SQLALCHEMY_DATABASE_URI'] = f"mysql://{db_info['user']}:{db_info['password']}@{db_info['host']}:{db_info['port']}/{db_info['database']}"
+#app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///test"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_POOL_RECYCLE'] = 499
 app.config['SQLALCHEMY_POOL_TIMEOUT'] = 20

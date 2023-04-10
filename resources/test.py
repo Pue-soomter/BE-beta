@@ -1,4 +1,6 @@
 from flask_restx import fields
+import pymysql
+from sqlalchemy import create_engine
 
 def make_models(api):
     api.model('Register', {
@@ -11,3 +13,11 @@ def make_models(api):
         'age': fields.String(example="20대",required=True, description='나이대(문자열)'),
         'is_allow': fields.Boolean(example=True, required=True, description='개인정보이용 동의여부'),
             })
+
+#
+# conn = pymysql.connect(
+#     db='samples'
+# )
+#
+# conn.cursor().execute("CREATE DATABASE samples")
+# conn.commit()
